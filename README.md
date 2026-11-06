@@ -24,6 +24,10 @@ See [architecture](docs/architecture.md) for trust boundaries and state transiti
 - `sdk/server.mjs`: server-only integration client and raw-body webhook verifier.
 - `examples/booking/server.mjs`: separate workshop merchant with server-owned pricing and durable, idempotent booking creation.
 
+## Landing page
+
+Run `pnpm dev:web` to view the marketing site at `http://127.0.0.1:4210`. Build with `pnpm build:web`. The landing includes an illustrative recovery walkthrough and links to live testnet evidence; it does not submit payments. See [landing documentation](docs/landing.md).
+
 ## Run
 
 Use Node 22.13+ in the 22.x line or Node 24+, and pnpm 10.8.1. Node 22 emits an experimental warning for SQLite.
