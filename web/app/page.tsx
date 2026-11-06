@@ -1,7 +1,32 @@
+import Image from 'next/image';
+import sculpture from '../public/continuity-sculpture.png';
+import { siteUrl, siteDescription } from '@/lib/site';
+export const metadata = { alternates: { canonical: siteUrl } };
 import { LandingInteractions } from '@/components/landing-interactions';
 export default function Landing() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'SoftwareApplication',
+            name: 'Checkout',
+            url: siteUrl,
+            description: siteDescription,
+            applicationCategory: 'BusinessApplication',
+            operatingSystem: 'Web',
+            featureList: [
+              'USDT payment authorization',
+              'Sponsored transaction gas',
+              'Signed webhook delivery',
+              'Merchant-authorized refunds',
+            ],
+            isAccessibleForFree: true,
+          }).replace(/</g, '\u003c'),
+        }}
+      />
       <a className="skip-link" href="#main">
         Skip to content
       </a>
@@ -69,9 +94,11 @@ export default function Landing() {
             className="hero-scene"
             aria-label="Illustrative payment receipt connected to an order"
           >
-            <img
+            <Image
               className="sculpture"
-              src="/continuity-sculpture.png"
+              src={sculpture}
+              sizes="100vw"
+              loading="eager"
               alt=""
               width="2172"
               height="724"

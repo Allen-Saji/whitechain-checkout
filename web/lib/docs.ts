@@ -172,7 +172,7 @@ if (!order.checkoutUrl) {
       },
       {
         title: 'Read the receipt',
-        text: 'GET /v1/checkouts/:id returns amount, merchant, buyer, state, refunded, fulfillment, expiresAt, chainId, token, paymentJob and timeline. The checkout UUID grants receipt access: do not encode private customer information in the external order ID.',
+        text: 'GET /v1/checkouts/:id returns title, description, merchantName, amount, merchant, buyer, state, refunded, fulfillment, expiresAt, chainId, token, paymentJob and timeline. The checkout UUID grants receipt access: do not encode private customer information in the external order ID.',
         rows: [
           ['created', 'Waiting for a signed payment.'],
           ['queued', 'Submitted for processing; not yet confirmed.'],
@@ -274,10 +274,56 @@ if (!valid) {
       },
       {
         title: 'Reservations and limits',
-        text: 'Unsigned reservations expire after 15 minutes and are released by the worker. Closing a signature prompt does not immediately release a reservation. The contract caps cumulative refunds at the original payment, but it cannot force a merchant to authorize a refund or retain enough funds. Refunds remain possible during the contract payment pause; the application worker pause suspends submission for both.',
+        text: 'Unsigned reservations expire after 15 minutes, including while the worker is paused. GET /v1/merchant/orders/:id/refunds reports reservations and available balance. POST /v1/merchant/refunds/:id/cancel releases an unsubmitted reservation; queued refunds cannot be cancelled. Closing a signature prompt does not immediately release a reservation. The contract caps cumulative refunds at the original payment, but it cannot force a merchant to authorize a refund or retain enough funds. Refunds remain possible during the contract payment pause; the application worker pause suspends submission for both.',
       },
     ],
   },
+  {
+    slug: 'agents',
+    group: 'Integrate',
+    title: 'Integrate with your coding agent',
+    label: 'Agents and SDK',
+    description:
+      'Install the server SDK into an existing app, with a focused integration skill and machine-readable reference.',
+    sections: [
+      {
+        title: 'Install from source',
+        text: 'The SDK is packaged with TypeScript declarations and no runtime dependencies. It is not published to the npm registry. Clone the repository, pack sdk/, and install that tarball in your server application.',
+        language: 'sh',
+        code: 'git clone https://github.com/Allen-Saji/whitechain-checkout.git\ncd whitechain-checkout\nnpm pack ./sdk\n# In your app: npm install /path/to/whitechain-checkout-server-0.1.0.tgz',
+      },
+      {
+        title: 'Give your agent the integration skill',
+        text: 'Read the skill, then ask your coding agent to integrate Checkout into your existing app. It preserves your stack, keeps credentials server-side, derives prices from your product data and verifies fulfillment behavior.',
+        link: { href: '/skill.md', label: 'Read the integration skill' },
+      },
+      {
+        title: 'A concrete task to give your agent',
+        language: 'text',
+        code: 'Use https://checkout.allensaji.dev/skill.md to integrate Checkout into this app. Use our existing authentication and product database. Add server-side checkout creation, a signed webhook receiver, durable event deduplication and fulfillment acknowledgement. Use local tests first. Do not expose credentials or submit a public-chain transaction without approval.',
+      },
+      {
+        title: 'Machine-readable references',
+        rows: [
+          [
+            '/openapi.json',
+            'Integration endpoint contract and authentication.',
+          ],
+          ['/llms.txt', 'Short resource index.'],
+          [
+            '/llms-full.txt',
+            'Plain-text reference generated from these developer guides.',
+          ],
+          ['/skill.md', 'Focused integration instructions.'],
+        ],
+      },
+      {
+        title: 'Recover an order safely',
+        text: 'POST /v1/merchant/orders/:id/retry-payment requeues the original failed payment only when no transaction was signed or broadcast and its authorization remains valid. Resolve the reported balance or budget issue first. Expired orders need a new checkout. The merchant workspace offers this action only for eligible jobs.',
+      },
+    ],
+  },
+
   {
     slug: 'api',
     group: 'Reference',
@@ -291,7 +337,7 @@ if (!valid) {
         rows: [
           [
             'POST /v1/checkouts',
-            '{orderId, amount, expiresIn?}; create or reuse an order.',
+            '{orderId, amount, title?, description?, expiresIn?}; create or reuse an order. Metadata and price are immutable.',
           ],
           [
             'GET /v1/merchant/orders',

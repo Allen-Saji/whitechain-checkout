@@ -1,7 +1,7 @@
 <p align="center"><img src="web/public/mark.svg" width="64" height="64" alt="Checkout logo" /></p>
 <h1 align="center">Checkout</h1>
 <p align="center">USDT payments. Orders accounted for.</p>
-<p align="center"><a href="docs/getting-started.md">Get started</a> | <a href="docs/integration.md">Integration</a> | <a href="docs/architecture.md">Architecture</a> | <a href="CONTRIBUTING.md">Contribute</a></p>
+<p align="center"><a href="https://checkout.allensaji.dev">Live app</a> | <a href="https://checkout.allensaji.dev/docs">Developer docs</a> | <a href="docs/getting-started.md">Get started</a> | <a href="docs/integration.md">Integration</a> | <a href="docs/architecture.md">Architecture</a> | <a href="CONTRIBUTING.md">Contribute</a></p>
 
 Checkout connects a USDT payment to the order behind it. Customers authorize a payment, the relayer covers gas, and merchants receive funds directly. Confirmed payments create durable receipts and signed notifications; merchants can retry delivery and authorize partial refunds from their workspace.
 
@@ -43,7 +43,7 @@ Open `http://127.0.0.1:4210`. The landing page and documentation work without th
 
 ## Integration
 
-The server SDK is included in this repository; it is not an npm package. From an integration file at the repository root:
+The server SDK includes TypeScript declarations and can be installed as a local tarball. It has not been published to the npm registry. Run `npm pack ./sdk`, then install the resulting archive in your server app. Import `checkoutClient` from `@whitechain-checkout/server` after installation, or use the repository-relative import below. Coding agents can follow the [integration skill](sdk/skills/integrate-checkout/SKILL.md); the hosted [OpenAPI reference](https://checkout.allensaji.dev/openapi.json) and [plain-text docs](https://checkout.allensaji.dev/llms-full.txt) describe the API.
 
 ```js
 import { checkoutClient } from './sdk/server.mjs';
@@ -55,6 +55,7 @@ const checkout = checkoutClient({
 
 const order = await checkout.create({
   orderId: 'booking-1042',
+  title: 'Studio workshop',
   amount: '2000000', // 2 USDT
 });
 // Redirect the customer to order.checkoutUrl.
@@ -80,11 +81,11 @@ Set `CHECKOUT_BASE_URL` on the API to enable checkout URLs. Verify webhook signa
 
 `pnpm check` runs formatting, lint, strict frontend type checking, Solidity compilation, offline tests and the Next.js production build. `pnpm test:fork` runs the full suite against an isolated Anvil fork, including process recovery, merchant isolation, wallet sessions, notification replay and partial refunds. See [operations](docs/operations.md) for fork setup. CI runs on pull requests and manual dispatch.
 
-The recorded deployment is Whitechain Sepolia, chain 1874, using USDT at `0xcedfB56113143d55b2358b8CFbB0dEB5Ad2f55a7`. Public evidence includes a [2 USDT payment and 0.5 USDT refund](deployments/whitechain-sepolia/smoke-result.json), plus a [MetaMask checkout and partial refund](deployments/whitechain-sepolia/browser-checkout-result.json). The latter refund was exercised through the authenticated API; merchant browser refund testing remains outstanding.
+The recorded deployment is Whitechain Sepolia, chain 1874, using USDT at `0xcedfB56113143d55b2358b8CFbB0dEB5Ad2f55a7`. Public evidence includes a [2 USDT payment and 0.5 USDT refund](deployments/whitechain-sepolia/smoke-result.json), plus a [MetaMask checkout and partial refund](deployments/whitechain-sepolia/browser-checkout-result.json). A separate [hosted payment and wallet-signed browser refund](deployments/whitechain-sepolia/hosted-checkout-result.json) verified the deployed merchant integration and fulfillment.
 
 ## Deployment and security
 
-This deployment uses test assets. Public application hosting, mainnet deployment and independent security review are not complete. Explorer source verification is pending. The current system uses single-host SQLite; automatic reorg rollback and transaction fee replacement are not implemented.
+This deployment uses test assets. The frontend, API and independent example merchant are publicly hosted. Mainnet deployment and independent security review are not complete. The relayer can be paused by the operator; check `/v1/config` for current availability. Explorer source verification is pending. The current system uses single-host SQLite; automatic reorg rollback and transaction fee replacement are not implemented.
 
 Payment goes directly to the merchant. Refunds require the merchant's authorization and available funds; Checkout does not provide escrow or guarantee refunds. Browser authentication supports EOA wallets. Wallet-signed registration is available when enabled by the operator. New accounts must configure and check their webhook before creating checkouts.
 

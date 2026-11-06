@@ -11,7 +11,13 @@ function getPage(slug?: string[]) {
 }
 export async function generateMetadata({ params }: Props) {
   const page = getPage((await params).slug);
-  return { title: page ? page.label + ' - Docs' : 'Page not found' };
+  return {
+    title: page ? page.label + ' - Docs' : 'Page not found',
+    description: page?.description,
+    alternates: {
+      canonical: page?.slug === 'overview' ? '/docs' : '/docs/' + page?.slug,
+    },
+  };
 }
 export function generateStaticParams() {
   return [{ slug: [] }, ...pages.map((p) => ({ slug: [p.slug] }))];

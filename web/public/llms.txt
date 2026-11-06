@@ -1,0 +1,20 @@
+# Checkout
+
+> USDT checkout with sponsored gas, durable payment receipts, signed webhook delivery, fulfillment tracking and merchant-authorized refunds.
+
+Deployment: https://checkout.allensaji.dev
+Network: Whitechain Sepolia, chain 1874. This deployment uses test assets. Check /v1/config before attempting a transaction. Payment receipt URLs are not a public directory; do not crawl merchant sessions or individual receipts.
+
+## Integration resources
+
+- [Complete plain-text developer reference](https://checkout.allensaji.dev/llms-full.txt)
+- [Integration skill](https://checkout.allensaji.dev/skill.md): Instructions for integrating the server SDK into an existing application.
+- [OpenAPI](https://checkout.allensaji.dev/openapi.json): Endpoint contract, authentication and request schemas.
+- [Quickstart](https://checkout.allensaji.dev/docs/quickstart)
+- [Webhooks](https://checkout.allensaji.dev/docs/webhooks)
+- [Refunds](https://checkout.allensaji.dev/docs/refunds)
+- [Source and packaged SDK](https://github.com/Allen-Saji/whitechain-checkout)
+
+## Boundaries
+
+Keep API keys server-side. Merchant registration and refunds require wallet ownership. Confirm settlement from signed confirmed-payment events, not browser redirects. Fulfillment is a separate acknowledgement. SDK tarballs can be built from the repository; no npm registry release is claimed. Mainnet, escrow, guaranteed refunds and contract-wallet signing are not supported.

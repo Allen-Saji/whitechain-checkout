@@ -1,13 +1,44 @@
 import type { Metadata, Viewport } from 'next';
+import localFont from 'next/font/local';
+import { siteUrl, siteDescription } from '@/lib/site';
 import '../styles/base.css';
+const sans = localFont({
+  src: [
+    { path: '../public/fonts/dm-sans-regular.ttf', weight: '400' },
+    { path: '../public/fonts/dm-sans-semibold.ttf', weight: '600' },
+  ],
+  variable: '--font-sans',
+  display: 'swap',
+});
+const serif = localFont({
+  src: '../public/fonts/instrument-serif-italic.ttf',
+  weight: '400',
+  style: 'italic',
+  variable: '--font-serif',
+  display: 'swap',
+});
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: {
     default: 'Checkout - USDT payments. Orders accounted for.',
     template: '%s | Checkout',
   },
-  description:
-    'USDT checkout with sponsored gas, recoverable order delivery and merchant-authorized refunds.',
-  icons: { icon: '/mark.svg' },
+  description: siteDescription,
+  applicationName: 'Checkout',
+  icons: { icon: [{ url: '/mark.svg', type: 'image/svg+xml' }] },
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    siteName: 'Checkout',
+    title: 'Checkout - USDT payments. Orders accounted for.',
+    description: siteDescription,
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Checkout - USDT payments. Orders accounted for.',
+    description: siteDescription,
+  },
+  robots: { index: true, follow: true },
 };
 export const viewport: Viewport = { themeColor: '#fcfaf7' };
 export default function RootLayout({
@@ -16,7 +47,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${sans.variable} ${serif.variable}`}>
       <body>{children}</body>
     </html>
   );

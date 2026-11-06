@@ -68,3 +68,19 @@ For an isolated fork, also set `LOCAL_FORK=1` and use that fork's deployment, re
 `DEMO_MERCHANT_ID` opts that merchant into public read-only demo data. Omit it from a private production deployment. Merchant sessions last seven days; the signature challenge lasts five minutes. Use the registered payout wallet to sign in at `/merchant`; refund execution requires another token authorization and sufficient USDT. A canceled refund signature can leave an unsigned reservation until its 15-minute deadline and worker cleanup.
 
 Public hosting runs the Next.js application server and its same-origin API rewrites described in [frontend deployment](landing.md). Configure the production origin before login; origin checks deliberately reject mismatches.
+
+## Recover an unbroadcast payment
+
+The merchant workspace exposes **Retry original payment** only when the job failed before any transaction was signed or broadcast and its original authorization has not expired. The authenticated API is `POST /v1/merchant/orders/:id/retry-payment`; the SDK method is `retryPayment(checkoutId)`. Resolve the reported cause first. A retry uses the same job, amount, signer and signature. Paused workers, checkout scope and gas caps still apply.
+
+Expired authorizations require a new checkout. Signed or broadcast transactions must be reconciled against their stored hash; this endpoint refuses them. Do not reset these jobs in SQL or send another transaction merely because a request timed out.
+
+For an exhausted merchant allowance, an operator can review a proposed change without modifying the database:
+
+```sh
+DB_PATH=/data/checkout.sqlite node scripts/set-merchant-budget.mjs MERCHANT_ID 10000000000000000
+# Apply the reviewed value:
+DB_PATH=/data/checkout.sqlite node scripts/set-merchant-budget.mjs MERCHANT_ID 10000000000000000 --apply
+```
+
+The command requires an explicit database path, refuses unknown merchants and allowances above the configured global cap, and prints only the merchant ID and budget values. It does not submit transactions or retry jobs. Back up the database before deploying a schema migration. Schema version 4 adds immutable order details without rewriting existing receipts.

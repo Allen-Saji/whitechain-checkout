@@ -14,3 +14,29 @@ The server SDK exposes `create`, `fulfill`, `refund`, and `submitRefund`. The se
 Webhook headers are `x-checkout-timestamp` (Unix seconds) and `x-checkout-signature` (hex HMAC-SHA256 of `timestamp + "." + rawBody`). The verifier permits five minutes of clock skew. Delivery retries use the same event ID and fresh signature. Successful 2xx responses stop automatic delivery retries. Merchant delivery history and explicit replay are available at `/v1/merchant/deliveries` and `/v1/merchant/deliveries/:id/retry`.
 
 Refund flow: request authorization at `POST /v1/merchant/orders/:id/refunds` with `{refundId, amount}`; have the merchant payout wallet sign the returned authorization; submit the signature to `POST /v1/merchant/refunds/:id/submit`. A refund request is not a completed refund. Poll confirmed order history. Pending refund reservations count against the original paid amount; unsigned expired reservations are released by the worker.
+
+## Install in another application
+
+From a repository checkout, run `npm pack ./sdk`. Install the generated `whitechain-checkout-server-0.1.0.tgz` in your server project. The package exports `checkoutClient` and `verifyWebhook` with TypeScript declarations and uses only Node built-ins. It is not published to npm. Keep your existing application authentication and persistence.
+
+```js
+import { checkoutClient } from '@whitechain-checkout/server';
+const checkout = checkoutClient({
+  baseUrl: process.env.CHECKOUT_API,
+  apiKey: process.env.CHECKOUT_API_KEY,
+});
+const order = await checkout.create({
+  orderId: 'membership-1042',
+  amount: '1000000',
+  title: 'Studio membership',
+  description: 'One month of studio access',
+});
+```
+
+Price, title and description are immutable for a given merchant order ID. Derive them from server data, not a browser-submitted price. Checkout snapshots your business name when creating the order. Do not put personal or sensitive data into public receipt metadata. Older orders without metadata display generic labels.
+
+The [integration skill](../sdk/skills/integrate-checkout/SKILL.md) gives coding agents the integration sequence and verification boundaries. The public [OpenAPI document](https://checkout.allensaji.dev/openapi.json) covers merchant integration endpoints. Wallet registration and sign-in are available through the hosted UI.
+
+## Refund reservations
+
+Use `checkout.refunds(checkoutId)` to read `available`, `reserved`, and refund history before choosing an amount. `checkout.cancelRefund(refundId)` releases an unsubmitted reservation. Closing a wallet prompt does not cancel it. Expired unsubmitted reservations stop reducing the available balance even when the worker is paused. Submitted refunds cannot be cancelled; wait for confirmation before creating another request.
