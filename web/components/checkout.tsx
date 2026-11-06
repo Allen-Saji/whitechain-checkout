@@ -25,13 +25,15 @@ export function Checkout({
   const [config, setConfig] = useState<Config | null>(null),
     [order, setOrder] = useState<Receipt | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
-  const [error, setError] = useState<string | null>(null),
+  const [actionError, setError] = useState<string | null>(null),
+    [loadError, setLoadError] = useState<string | null>(null),
     [busy, setBusy] = useState(false),
     [connecting, setConnecting] = useState(false);
   const [connected, setConnected] = useState<{
     address: Address;
     balance: string;
   } | null>(null);
+  const error = actionError ?? loadError;
   useEffect(() => {
     let alive = true;
     let refreshing = false;
@@ -44,12 +46,12 @@ export function Checkout({
           api<Receipt>('/v1/checkouts/' + encodeURIComponent(id)),
         ]);
         if (alive) {
-          setError(null);
+          setLoadError(null);
           setConfig(c);
           setOrder(o);
         }
       } catch (e) {
-        if (alive) setError(errorMessage(e));
+        if (alive) setLoadError(errorMessage(e));
       } finally {
         refreshing = false;
       }
