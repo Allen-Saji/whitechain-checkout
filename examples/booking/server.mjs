@@ -18,7 +18,16 @@ db.exec(`PRAGMA journal_mode=WAL;PRAGMA busy_timeout=5000;
 CREATE TABLE IF NOT EXISTS orders(id TEXT PRIMARY KEY,amount TEXT NOT NULL,checkout_id TEXT UNIQUE);
 CREATE TABLE IF NOT EXISTS bookings(order_id TEXT PRIMARY KEY,checkout_id TEXT UNIQUE NOT NULL,created_at INTEGER NOT NULL);
 CREATE TABLE IF NOT EXISTS events(id TEXT PRIMARY KEY);`);
+const price = process.env.DEMO_PRICE ?? '2000000';
+if (!/^[1-9][0-9]{0,12}$/.test(price)) throw Error('INVALID_DEMO_PRICE');
 const app = Fastify({ logger: false, bodyLimit: 16000 });
+app.get('/product', async () => ({
+  title: 'Build with stablecoins',
+  amount: price,
+  token: 'USDT',
+  chainId: 1874,
+  testnet: true,
+}));
 app.removeContentTypeParser('application/json');
 app.addContentTypeParser(
   'application/json',
@@ -38,9 +47,10 @@ app.post('/book', async (req, reply) => {
     return reply.code(400).send({ error: 'INVALID_ORDER_ID' });
   db.prepare('INSERT OR IGNORE INTO orders(id,amount) VALUES(?,?)').run(
     id,
-    '2000000',
+    price,
   );
-  const order = await checkout.create({ orderId: id, amount: '2000000' });
+  const existing = db.prepare('SELECT amount FROM orders WHERE id=?').get(id);
+  const order = await checkout.create({ orderId: id, amount: existing.amount });
   db.prepare('UPDATE orders SET checkout_id=? WHERE id=?').run(order.id, id);
   return order;
 });

@@ -1,0 +1,5 @@
+export function mountShell(active) {
+  document.body.className = 'product-app';
+  document.body.innerHTML = `<a class="skip-link" href="#app-main">Skip to content</a><div class="testnet-banner">Whitechain Sepolia testnet <span>Use test USDT only. No real bookings.</span></div><header class="app-header wrap"><a class="wordmark" href="/"><img src="/mark.svg" width="30" height="30" alt="" />checkout.</a><nav aria-label="Product navigation"><a href="/demo" ${active === 'demo' ? 'aria-current="page"' : ''}>Demo shop</a><a href="/merchant" ${active === 'merchant' ? 'aria-current="page"' : ''}>Merchant</a><a href="https://github.com/Allen-Saji/whitechain-checkout" target="_blank" rel="noopener noreferrer">Docs &#8599;</a></nav></header><main id="app-main" class="app-main wrap"><div id="app-message" class="app-message" role="alert" hidden></div><div id="app-view" aria-live="off"><p class="loading-label">Loading the workspace...</p></div></main><footer class="app-footer wrap"><span>USDT payments. Orders accounted for.</span><a href="/">About checkout &#8599;</a></footer>`;
+  return document.querySelector('#app-view');
+}
