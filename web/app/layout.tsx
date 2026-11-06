@@ -48,7 +48,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${sans.variable} ${serif.variable}`}>
-      <body>{children}</body>
+      <body>
+        {children}
+        <div id="wallet-dialog-root" />
+      </body>
     </html>
   );
 }

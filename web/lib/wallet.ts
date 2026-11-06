@@ -82,7 +82,18 @@ async function chooseProvider(): Promise<EIP1193Provider> {
       },
       { once: true },
     );
-    document.body.append(dialog);
+    // Keep imperative dialog nodes inside a stable host owned by the layout.
+    // Moving a modal during a React body update removes it from the top layer.
+    const host = document.getElementById('wallet-dialog-root');
+    if (!host) {
+      reject(
+        Error(
+          'The wallet chooser could not open. Reload the page and try again.',
+        ),
+      );
+      return;
+    }
+    host.append(dialog);
     dialog.showModal();
   });
 }
