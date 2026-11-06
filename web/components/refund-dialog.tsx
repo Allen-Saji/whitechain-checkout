@@ -141,6 +141,12 @@ export function RefundDialog({
       onClose={onClose}
     >
       <form onSubmit={submit} aria-busy={busy}>
+        {!config.relayEnabled ? (
+          <p className="workspace-mode">
+            Processing is paused. You can review refunds and release unsubmitted
+            reservations.
+          </p>
+        ) : null}
         <p className="app-kicker">MERCHANT-AUTHORIZED REFUND</p>
         <h2 id="refund-title">
           Return a little.

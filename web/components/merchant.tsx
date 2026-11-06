@@ -406,9 +406,21 @@ export function MerchantWorkspace({
                 ? 'Try another search or choose a different status.'
                 : 'Connect your server and create a checkout to receive your first order.'}
             </p>
-            <Link className="text-link" href="/merchant/settings">
-              Connect your integration &#8599;
-            </Link>
+            {data.orders.length ? (
+              <button
+                className="text-link"
+                onClick={() => {
+                  setQuery('');
+                  setFilter('all');
+                }}
+              >
+                Clear filters
+              </button>
+            ) : (
+              <Link className="text-link" href="/merchant/settings">
+                Connect your integration &#8599;
+              </Link>
+            )}
           </div>
         )}
       </div>
@@ -514,13 +526,14 @@ export function MerchantWorkspace({
               className="button button-primary"
               disabled={
                 data.readOnly ||
-                !config?.relayEnabled ||
-                BigInt(order.amount) <= BigInt(order.refunded) ||
-                !['paid', 'partially_refunded'].includes(order.state)
+                !config ||
+                !['paid', 'partially_refunded', 'refunded'].includes(
+                  order.state,
+                )
               }
               onClick={() => setRefund(order)}
             >
-              Issue a refund
+              Review refunds
             </button>
           </div>
           {data.readOnly ? (
