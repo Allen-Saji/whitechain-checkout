@@ -14,6 +14,12 @@ Checkout connects a USDT payment to the order behind it. Customers authorize a p
 - Solidity payment router with order-bound authorizations and cumulative refund limits.
 - In-app developer documentation with copyable examples at `/docs`.
 
+## Architecture
+
+![Checkout architecture: web app, merchant server, API, persistent database, worker modules and Whitechain settlement](docs/images/checkout-architecture.png)
+
+The API and worker modules share a Node.js runtime and SQLite database. The merchant application handles fulfillment separately. See the [architecture guide](docs/architecture.md) for payment state, authorization and recovery details.
+
 ## Stack
 
 Next.js App Router, React and TypeScript for the frontend. Fastify, viem and SQLite for the API and worker. Solidity for payment accounting.
