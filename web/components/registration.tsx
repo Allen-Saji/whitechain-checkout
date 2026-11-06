@@ -14,7 +14,8 @@ export function Registration() {
   const [name, setName] = useState(''),
     [enabled, setEnabled] = useState<boolean | null>(null),
     [error, setError] = useState<string | null>(null),
-    [busy, setBusy] = useState(false);
+    [busy, setBusy] = useState(false),
+    [progress, setProgress] = useState('');
   const [result, setResult] = useState<{
       merchant: MerchantSettings;
       credentials: MerchantCredentials;
@@ -39,7 +40,7 @@ export function Registration() {
     setBusy(true);
     setError(null);
     try {
-      setResult(await registerMerchant(name.trim()));
+      setResult(await registerMerchant(name.trim(), setProgress));
     } catch (e) {
       setError(errorMessage(e));
     } finally {
@@ -120,6 +121,7 @@ export function Registration() {
               <label htmlFor="business-name">Business name</label>
               <input
                 id="business-name"
+                disabled={busy}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 minLength={2}
@@ -144,6 +146,11 @@ export function Registration() {
                       : 'Checking availability...'
                     : 'Connect wallet and create account'}
               </button>
+              {busy ? (
+                <p className="fine-print" role="status" aria-live="polite">
+                  {progress}
+                </p>
+              ) : null}
               {enabled === false ? (
                 <p className="fine-print" role="status">
                   New account registration is currently unavailable. Existing

@@ -1,3 +1,4 @@
+import { walletRequest } from './wallet-request';
 import type { Address, EIP1193Provider } from 'viem';
 import type { Authorization, Session } from './types';
 import { api } from './api';
@@ -105,20 +106,30 @@ function friendly(error: unknown) {
     );
   return error;
 }
-export async function connectWallet() {
+export async function connectWallet(onProgress?: (message: string) => void) {
   try {
+    onProgress?.('Choose your wallet to continue.');
     selected ??= await chooseProvider();
-    const accounts = await selected.request({ method: 'eth_requestAccounts' });
+    const provider = selected;
+    const bounded = {
+      request: ((args) =>
+        walletRequest(() =>
+          provider.request(args as Parameters<EIP1193Provider['request']>[0]),
+        )) as EIP1193Provider['request'],
+    };
+    onProgress?.('Open your wallet extension and approve the connection.');
+    const accounts = await bounded.request({ method: 'eth_requestAccounts' });
     if (!accounts[0]) throw Error('Select an account in your wallet.');
-    if (Number(await selected.request({ method: 'eth_chainId' })) !== 1874) {
+    if (Number(await bounded.request({ method: 'eth_chainId' })) !== 1874) {
+      onProgress?.('Approve the switch to Whitechain Sepolia in your wallet.');
       try {
-        await selected.request({
+        await bounded.request({
           method: 'wallet_switchEthereumChain',
           params: [{ chainId: '0x752' }],
         });
       } catch (error) {
         if (codeOf(error) !== 4902) throw error;
-        await selected.request({
+        await bounded.request({
           method: 'wallet_addEthereumChain',
           params: [
             {
@@ -132,12 +143,14 @@ export async function connectWallet() {
         });
       }
     }
-    if (Number(await selected.request({ method: 'eth_chainId' })) !== 1874)
+    if (Number(await bounded.request({ method: 'eth_chainId' })) !== 1874)
       throw Error('Switch your wallet to Whitechain Sepolia to continue.');
-    const current = await selected.request({ method: 'eth_accounts' });
+    const current = await bounded.request({ method: 'eth_accounts' });
     return {
       address: getAddress(current[0]),
-      client: createWalletClient({ transport: custom(selected) }),
+      client: createWalletClient({
+        transport: custom(bounded, { retryCount: 0 }),
+      }),
     };
   } catch (error) {
     throw friendly(error);
@@ -214,11 +227,18 @@ export async function signIn() {
   return api<Session>('/v1/session/verify', { id: challenge.id, signature });
 }
 
-export async function registerMerchant(businessName: string) {
-  const wallet = await connectWallet();
+export async function registerMerchant(
+  businessName: string,
+  onProgress?: (message: string) => void,
+) {
+  const wallet = await connectWallet(onProgress);
+  onProgress?.('Preparing your registration message...');
   const challenge = await api<{ id: string; message: string }>(
     '/v1/registration/challenge',
     { address: wallet.address, businessName },
+  );
+  onProgress?.(
+    'Sign the registration message in your wallet. This does not move funds.',
   );
   let signature;
   try {
@@ -229,6 +249,7 @@ export async function registerMerchant(businessName: string) {
   } catch (error) {
     throw friendly(error);
   }
+  onProgress?.('Creating your merchant account...');
   return api<{
     merchant: import('./types').MerchantSettings;
     credentials: import('./types').MerchantCredentials;
