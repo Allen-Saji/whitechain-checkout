@@ -41,11 +41,13 @@ test(
       { mode: 0o600 },
     );
     let child;
-    async function start() {
+    async function start(useEnvironment = false) {
       child = spawn(process.execPath, ['examples/booking/server.mjs'], {
         env: {
           ...process.env,
           MERCHANT_CONFIG: config,
+          MERCHANT_API_KEY: useEnvironment ? 'test-api-key' : '',
+          MERCHANT_WEBHOOK_SECRET: useEnvironment ? secret : '',
           CHECKOUT_API: api,
           BOOKING_PORT: String(port),
           BOOKING_DB: dbPath,
@@ -104,7 +106,7 @@ test(
       assert.equal((await deliver(signature)).status, 500);
       await stop();
       ackFails = false;
-      await start();
+      await start(true);
       assert.equal((await deliver(signature)).status, 200);
       assert.equal((await deliver(signature)).status, 200);
       const db = new DatabaseSync(dbPath);

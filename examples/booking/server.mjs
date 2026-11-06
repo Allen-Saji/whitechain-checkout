@@ -1,18 +1,28 @@
 import Fastify from 'fastify';
 import { readFileSync, mkdirSync, chmodSync } from 'node:fs';
 import { DatabaseSync } from 'node:sqlite';
+import { dirname } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { checkoutClient, verifyWebhook } from '../../sdk/server.mjs';
-const credentials = JSON.parse(
-  readFileSync(process.env.MERCHANT_CONFIG ?? '.local/merchant-fork.json'),
-);
+const fromEnvironment =
+  process.env.MERCHANT_API_KEY || process.env.MERCHANT_WEBHOOK_SECRET;
+const credentials = fromEnvironment
+  ? {
+      apiKey: process.env.MERCHANT_API_KEY,
+      webhookSecret: process.env.MERCHANT_WEBHOOK_SECRET,
+    }
+  : JSON.parse(
+      readFileSync(process.env.MERCHANT_CONFIG ?? '.local/merchant-fork.json'),
+    );
+if (!credentials.apiKey || !credentials.webhookSecret)
+  throw Error('MERCHANT_CREDENTIALS_REQUIRED');
 const checkout = checkoutClient({
   baseUrl: process.env.CHECKOUT_API ?? 'http://127.0.0.1:4200',
   apiKey: credentials.apiKey,
 });
-mkdirSync('.local', { recursive: true, mode: 0o700 });
-const path = process.env.BOOKING_DB ?? '.local/booking.sqlite',
-  db = new DatabaseSync(path);
+const path = process.env.BOOKING_DB ?? '.local/booking.sqlite';
+mkdirSync(dirname(path), { recursive: true, mode: 0o700 });
+const db = new DatabaseSync(path);
 chmodSync(path, 0o600);
 db.exec(`PRAGMA journal_mode=WAL;PRAGMA busy_timeout=5000;
 CREATE TABLE IF NOT EXISTS orders(id TEXT PRIMARY KEY,amount TEXT NOT NULL,checkout_id TEXT UNIQUE);
@@ -21,6 +31,7 @@ CREATE TABLE IF NOT EXISTS events(id TEXT PRIMARY KEY);`);
 const price = process.env.DEMO_PRICE ?? '2000000';
 if (!/^[1-9][0-9]{0,12}$/.test(price)) throw Error('INVALID_DEMO_PRICE');
 const app = Fastify({ logger: false, bodyLimit: 16000 });
+app.get('/health', async () => ({ ok: true }));
 app.get('/product', async () => ({
   title: 'Build with stablecoins',
   amount: price,
@@ -102,12 +113,12 @@ app.get('/bookings/:id', async (req, reply) => {
   return booking ?? reply.code(404).send({ error: 'NOT_BOOKED' });
 });
 await app.listen({
-  host: '127.0.0.1',
-  port: Number(process.env.BOOKING_PORT ?? 4300),
+  host: process.env.BOOKING_HOST ?? '127.0.0.1',
+  port: Number(process.env.BOOKING_PORT ?? process.env.PORT ?? 4300),
 });
 console.log(
-  'Workshop merchant listening on loopback port ' +
-    (process.env.BOOKING_PORT ?? 4300),
+  'Workshop merchant listening on port ' +
+    (process.env.BOOKING_PORT ?? process.env.PORT ?? 4300),
 );
 for (const signal of ['SIGINT', 'SIGTERM'])
   process.once(signal, async () => {

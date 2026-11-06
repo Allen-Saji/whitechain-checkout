@@ -5,3 +5,10 @@ export function exampleShopEnabled() {
     Boolean(process.env.CHECKOUT_MERCHANT_ORIGIN)
   );
 }
+
+export function examplePreviewEnabled() {
+  return (
+    !process.env.CHECKOUT_API_ORIGIN ||
+    process.env.CHECKOUT_PREVIEW_ENABLED === '1'
+  );
+}

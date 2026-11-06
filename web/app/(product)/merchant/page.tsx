@@ -1,4 +1,4 @@
-import { exampleShopEnabled } from '@/lib/deployment';
+import { examplePreviewEnabled } from '@/lib/deployment';
 import { MerchantWorkspace } from '@/components/merchant';
 export const metadata = {
   title: 'Merchant workspace',
@@ -13,8 +13,8 @@ export default async function MerchantPage({
   return (
     <MerchantWorkspace
       key={view ?? 'account'}
-      preview={view === 'example' && exampleShopEnabled()}
-      showExample={exampleShopEnabled()}
+      preview={view === 'example' && examplePreviewEnabled()}
+      showExample={examplePreviewEnabled()}
     />
   );
 }

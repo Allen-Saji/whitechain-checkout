@@ -42,3 +42,11 @@ The frontend domain is `checkout.allensaji.dev`. The API must use `APP_ORIGIN=ht
 ## Verification
 
 Check `/health`, confirm the public config reports the intended chain/router and paused state, and verify a fresh wallet challenge includes the correct frontend origin. Check existing receipts after migrating data. Then test merchant registration, notifications and refunds with explicit wallet consent before enabling general use. Set spending alerts and monitor credits, relayer balance and delivery failures.
+
+## Hosted example merchant
+
+Build Dockerfile.merchant and mount a separate volume at /data. Set MERCHANT_API_KEY and MERCHANT_WEBHOOK_SECRET in the platform secret store, CHECKOUT_API to the backend HTTPS origin, PORT=4301, BOOKING_HOST=0.0.0.0, BOOKING_DB=/data/bookings.sqlite and DEMO_PRICE to the intended token amount. The service exposes /health, /product, /book and a signature-verifying /webhook. Set the merchant notification endpoint to its public /webhook URL and run a connection check before accepting orders.
+
+Set CHECKOUT_MERCHANT_ORIGIN on Vercel to expose the example shop. Public workspace history is separate: CHECKOUT_PREVIEW_ENABLED and backend DEMO_MERCHANT_ID must both be explicitly configured for a suitable sample account. Do not expose ordinary merchant order history by enabling the shop.
+
+For a bounded rehearsal, set RELAY_CHECKOUT_ID to one existing checkout UUID plus RELAY_MAX_PAYMENT_AMOUNT and RELAY_MAX_REFUND_AMOUNT in token base units. API submission and worker signing/rebroadcast both enforce the scope. Unknown persisted transactions halt rather than being skipped. Keep these settings while pausing the relayer after the run.

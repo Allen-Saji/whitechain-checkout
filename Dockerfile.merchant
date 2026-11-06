@@ -1,0 +1,13 @@
+FROM node:22-bookworm-slim
+WORKDIR /app
+RUN corepack enable && corepack prepare pnpm@10.8.1 --activate
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --prod --frozen-lockfile
+RUN apt-get update && apt-get install -y --no-install-recommends gosu && apt-get clean
+COPY examples/booking ./examples/booking
+COPY sdk ./sdk
+COPY src/crypto.mjs ./src/crypto.mjs
+COPY scripts/merchant-entrypoint.sh ./scripts/merchant-entrypoint.sh
+ENV NODE_ENV=production BOOKING_HOST=0.0.0.0 BOOKING_DB=/data/bookings.sqlite
+EXPOSE 4301
+ENTRYPOINT ["sh", "scripts/merchant-entrypoint.sh"]
