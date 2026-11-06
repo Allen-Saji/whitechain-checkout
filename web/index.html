@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#fcfaf7" />
+    <meta
+      name="description"
+      content="USDT checkout that keeps payments and orders connected. Sponsored gas, recoverable merchant delivery, and partial refunds on Whitechain."
+    />
+    <title>Checkout - From paid to fulfilled.</title>
+    <link rel="icon" type="image/svg+xml" href="/mark.svg" />
+    <link
+      rel="preload"
+      href="/fonts/dm-sans-regular.ttf"
+      as="font"
+      type="font/ttf"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="/fonts/instrument-serif-italic.ttf"
+      as="font"
+      type="font/ttf"
+      crossorigin
+    />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="site-header wrap">
+      <a class="wordmark" href="#top" aria-label="Checkout home"
+        ><img src="/mark.svg" alt="" width="34" height="34" />checkout.</a
+      >
+      <nav aria-label="Main navigation">
+        <a href="#product">Product</a><a href="#developers">Developers</a
+        ><a href="#questions">Questions</a>
+      </nav>
+      <a class="button button-outline nav-action" href="#walkthrough"
+        >Explore the demo <span aria-hidden="true">&#8599;</span></a
+      >
+      <button
+        class="menu-toggle"
+        aria-label="Open navigation"
+        aria-expanded="false"
+        aria-controls="mobile-nav"
+      >
+        <span></span><span></span>
+      </button>
+    </header>
+    <nav
+      id="mobile-nav"
+      class="mobile-nav"
+      aria-label="Mobile navigation"
+      hidden
+    >
+      <a href="#product">Product</a><a href="#developers">Developers</a
+      ><a href="#questions">Questions</a
+      ><a href="#walkthrough">Explore the demo</a>
+    </nav>
+    <main id="main">
+      <section class="hero" id="top" aria-labelledby="hero-heading">
+        <div class="hero-copy wrap">
+          <p class="eyebrow">
+            <span class="status-dot"></span> PAYMENTS, WITH CONTINUITY
+          </p>
+          <h1 id="hero-heading">From paid<br />to <em>fulfilled.</em></h1>
+          <p class="hero-lede">
+            USDT checkout that keeps the payment<br class="desktop-break" />
+            and the order connected.
+          </p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="#walkthrough"
+              >Explore the demo <span aria-hidden="true">&#8599;</span></a
+            ><a class="text-link" href="#product"
+              >How it works <span aria-hidden="true">&#8595;</span></a
+            >
+          </div>
+        </div>
+        <div
+          class="hero-scene"
+          aria-label="Illustrative payment receipt connected to an order"
+        >
+          <img
+            class="sculpture"
+            src="/continuity-sculpture.png"
+            alt=""
+            width="2172"
+            height="724"
+            fetchpriority="high"
+          />
+          <div class="hero-receipt">
+            <div class="receipt-top">
+              <img src="/mark.svg" width="26" height="26" alt="" /><span
+                >Workshop booking</span
+              ><span class="receipt-reference">001</span>
+            </div>
+            <p class="receipt-amount">2 <span>USDT</span></p>
+            <div class="receipt-rule"></div>
+            <p class="receipt-row">
+              <span class="check" aria-hidden="true">&#10003;</span> Payment
+              received
+            </p>
+            <p class="receipt-row">
+              <span class="check" aria-hidden="true">&#10003;</span> Order
+              fulfilled
+            </p>
+            <p class="receipt-caption">Illustrative receipt</p>
+          </div>
+          <span class="scene-label scene-label-left">Payment</span
+          ><span class="scene-label scene-label-right">Order</span>
+        </div>
+        <div class="hero-bottom wrap">
+          <span>THE PAYMENT IS ONLY THE BEGINNING.</span
+          ><span><i class="status-dot"></i> Whitechain Sepolia testnet</span>
+        </div>
+      </section>
+      <section class="intro section wrap" id="product">
+        <div class="section-heading reveal">
+          <p class="eyebrow">01 / BUILT FOR THE AFTER</p>
+          <h2>An outage shouldn't<br />lose <em>the order.</em></h2>
+        </div>
+        <div class="intro-copy reveal">
+          <p>
+            A customer pays. Your server goes offline. The payment is real, but
+            the order is missing.
+          </p>
+          <p>
+            We record the payment and retry delivery when your app returns. Your
+            integration fulfills the order once, without charging the customer
+            again.
+          </p>
+          <a class="text-link" href="#walkthrough"
+            >Follow a payment <span aria-hidden="true">&#8600;</span></a
+          >
+        </div>
+      </section>
+      <section
+        class="walkthrough-section"
+        id="walkthrough"
+        aria-labelledby="flow-title"
+      >
+        <div class="wrap walkthrough-grid">
+          <div class="flow-description reveal">
+            <p class="eyebrow">02 / A LITTLE LESS TO WORRY ABOUT</p>
+            <h2 id="flow-title">
+              Paid once.<br />Remembered<br /><em>throughout.</em>
+            </h2>
+            <p class="section-lede">
+              The customer sees a payment.<br />You see what happens next.
+            </p>
+            <div
+              class="steps"
+              role="tablist"
+              aria-label="Payment recovery walkthrough"
+              aria-orientation="vertical"
+            >
+              <button
+                id="step-paid"
+                role="tab"
+                aria-selected="true"
+                aria-controls="flow-panel"
+                data-step="0"
+              >
+                <span class="step-number">01</span
+                ><span
+                  ><strong>Accept the payment.</strong
+                  ><small
+                    >The customer pays in USDT. The relayer covers gas.</small
+                  ></span
+                ><span class="step-arrow" aria-hidden="true">&#8599;</span>
+              </button>
+              <button
+                id="step-offline"
+                role="tab"
+                aria-selected="false"
+                aria-controls="flow-panel"
+                tabindex="-1"
+                data-step="1"
+              >
+                <span class="step-number">02</span
+                ><span
+                  ><strong>Keep the record.</strong
+                  ><small
+                    >Your app is offline. The paid order stays in the
+                    queue.</small
+                  ></span
+                ><span class="step-arrow" aria-hidden="true">&#8599;</span>
+              </button>
+              <button
+                id="step-recovered"
+                role="tab"
+                aria-selected="false"
+                aria-controls="flow-panel"
+                tabindex="-1"
+                data-step="2"
+              >
+                <span class="step-number">03</span
+                ><span
+                  ><strong>Finish the handoff.</strong
+                  ><small
+                    >Your app recovers. One order is fulfilled.</small
+                  ></span
+                ><span class="step-arrow" aria-hidden="true">&#8599;</span>
+              </button>
+            </div>
+          </div>
+          <div class="flow-stage reveal">
+            <div class="stage-orbit" aria-hidden="true"></div>
+            <div
+              id="flow-panel"
+              class="order-panel"
+              role="tabpanel"
+              aria-labelledby="step-paid"
+              tabindex="0"
+            >
+              <div class="order-panel-top">
+                <span class="order-monogram">W</span>
+                <div>
+                  <strong>Workshop booking</strong><span>Order 001</span>
+                </div>
+                <span class="network-chip">USDT</span>
+              </div>
+              <p class="order-amount">2.00 <span>USDT</span></p>
+              <div class="order-divider"></div>
+              <dl class="order-facts">
+                <div>
+                  <dt>Payment</dt>
+                  <dd>
+                    <span class="tiny-check" aria-hidden="true">&#10003;</span>
+                    Confirmed
+                  </dd>
+                </div>
+                <div>
+                  <dt>Customer gas</dt>
+                  <dd>Covered by relayer</dd>
+                </div>
+                <div>
+                  <dt>Fulfillment</dt>
+                  <dd id="fulfillment-state">Waiting for merchant</dd>
+                </div>
+              </dl>
+              <div class="event-log" aria-live="polite">
+                <span class="event-marker" aria-hidden="true"></span>
+                <div>
+                  <strong id="event-title">Payment received.</strong>
+                  <p id="event-detail">
+                    A confirmed receipt is recorded before your merchant app is
+                    notified.
+                  </p>
+                </div>
+              </div>
+              <div class="order-panel-bottom">
+                <span id="event-counter">01 / PAYMENT CONFIRMED</span
+                ><span class="live-indicator" aria-hidden="true"></span>
+              </div>
+            </div>
+            <p class="demo-caption">Illustrative walkthrough. No funds move.</p>
+            <button id="advance-demo" class="text-link">
+              Simulate an outage <span aria-hidden="true">&#8594;</span>
+            </button>
+          </div>
+        </div>
+      </section>
+      <section class="details-section section wrap">
+        <div class="section-heading reveal">
+          <p class="eyebrow">03 / THE WHOLE PAYMENT STORY</p>
+          <h2>A clear record.<br />A quieter <em>routine.</em></h2>
+          <p class="section-lede">
+            From the first payment to what comes after.
+          </p>
+        </div>
+        <div class="detail-list reveal">
+          <article>
+            <span>01</span>
+            <div>
+              <h3>Gas, taken care of.</h3>
+              <p>
+                Your customer signs the payment authorization. The relayer
+                submits it and pays the network fee.
+              </p>
+            </div>
+          </article>
+          <article>
+            <span>02</span>
+            <div>
+              <h3>Retries that respect the order.</h3>
+              <p>
+                Signed events and stable order IDs help your integration recover
+                without creating duplicate bookings.
+              </p>
+            </div>
+          </article>
+          <article>
+            <span>03</span>
+            <div>
+              <h3>Refunds with a receipt.</h3>
+              <p>
+                Authorize a full or partial refund from your merchant wallet.
+                Both parties can verify the onchain record.
+              </p>
+            </div>
+          </article>
+        </div>
+      </section>
+      <section class="evidence wrap reveal">
+        <div>
+          <p class="eyebrow">SETTLED ON WHITECHAIN SEPOLIA</p>
+          <h3>More than a concept.</h3>
+          <p>
+            A 2 USDT payment. A 0.5 USDT refund.<br />Zero WBT held by the buyer
+            and merchant.
+          </p>
+        </div>
+        <div class="evidence-links">
+          <a
+            href="https://explorer.testnet.whitechain.io/tx/0x7803084d3483a045a5c752c39560067a245ef7ec6f929200922dd54439ea17fc"
+            target="_blank"
+            rel="noopener noreferrer"
+            >View payment <span aria-hidden="true">&#8599;</span></a
+          ><a
+            href="https://explorer.testnet.whitechain.io/tx/0x5ac212bf80be6863c040b6a4742783aaef72be952b0fb9042a9cbc5e4057e8cf"
+            target="_blank"
+            rel="noopener noreferrer"
+            >View partial refund <span aria-hidden="true">&#8599;</span></a
+          >
+        </div>
+      </section>
+      <section class="integration section wrap" id="developers">
+        <div class="reveal">
+          <p class="eyebrow">04 / FOR BUILDERS</p>
+          <h2>Your app.<br />Our checkout.<br /><em>One flow.</em></h2>
+          <p class="section-lede">
+            Create a checkout on your server.<br />Connect your existing
+            fulfillment logic.
+          </p>
+          <a
+            class="text-link"
+            href="https://github.com/Allen-Saji/whitechain-checkout#integration-contract"
+            target="_blank"
+            rel="noopener noreferrer"
+            >Read the integration guide
+            <span aria-hidden="true">&#8599;</span></a
+          >
+        </div>
+        <div class="code-surface reveal">
+          <div class="code-header">
+            <span>merchant-server.mjs</span
+            ><button
+              id="copy-code"
+              aria-label="Copy checkout integration example"
+            >
+              Copy <span aria-hidden="true">&#8599;</span>
+            </button>
+          </div>
+          <pre><code id="integration-code"></code></pre>
+          <div class="code-footnote">
+            <span class="status-dot"></span> Server-side SDK. Keep API keys on
+            your server.
+          </div>
+        </div>
+      </section>
+      <section class="faq section wrap" id="questions">
+        <div class="reveal">
+          <p class="eyebrow">A FEW THINGS TO KNOW</p>
+          <h2>Clear from<br />the <em>start.</em></h2>
+        </div>
+        <div class="faq-list reveal">
+          <details>
+            <summary>
+              Does the customer need WBT?<span aria-hidden="true">+</span>
+            </summary>
+            <p>
+              No. The customer needs USDT and signs a payment authorization. Our
+              relayer submits the transaction and pays gas in WBT.
+            </p>
+          </details>
+          <details>
+            <summary>
+              What happens if my server goes down?<span aria-hidden="true"
+                >+</span
+              >
+            </summary>
+            <p>
+              Confirmed payments stay recorded. We retry the merchant
+              notification when your endpoint is available. Your integration
+              must fulfill idempotently and acknowledge completion.
+            </p>
+          </details>
+          <details>
+            <summary>
+              Who holds the payment?<span aria-hidden="true">+</span>
+            </summary>
+            <p>
+              The checkout contract forwards the payment directly to the
+              merchant in the same transaction. It does not retain the payment
+              as escrow.
+            </p>
+          </details>
+          <details>
+            <summary>
+              Are refunds guaranteed?<span aria-hidden="true">+</span>
+            </summary>
+            <p>
+              No. Refunds require the merchant's authorization and enough USDT
+              in their wallet. The contract tracks the amount refunded and
+              prevents refunding more than was paid.
+            </p>
+          </details>
+          <details>
+            <summary>
+              Can I use it with real funds today?<span aria-hidden="true"
+                >+</span
+              >
+            </summary>
+            <p>
+              This release is for Whitechain Sepolia testnet. It is not audited
+              for production funds. Explore the open-source integration and the
+              recorded testnet transactions.
+            </p>
+          </details>
+        </div>
+      </section>
+      <section class="closing wrap reveal">
+        <p class="eyebrow">FROM PAYMENT TO WHAT'S NEXT</p>
+        <h2>Keep your business<br /><em>moving.</em></h2>
+        <a
+          class="button button-primary"
+          href="https://github.com/Allen-Saji/whitechain-checkout"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Build with checkout <span aria-hidden="true">&#8599;</span></a
+        >
+        <p>Open source. Direct settlement. Whitechain Sepolia.</p>
+      </section>
+    </main>
+    <footer class="site-footer wrap">
+      <a class="wordmark" href="#top"
+        ><img src="/mark.svg" alt="" width="28" height="28" />checkout.</a
+      ><span>Payments, with continuity.</span
+      ><a
+        href="https://github.com/Allen-Saji/whitechain-checkout"
+        target="_blank"
+        rel="noopener noreferrer"
+        >GitHub <span aria-hidden="true">&#8599;</span></a
+      ><span class="footer-network">Testnet only</span>
+    </footer>
+    <button
+      class="pdf-btn no-print"
+      id="download-pdf"
+      aria-label="Download page as PDF"
+    >
+      Download PDF
+    </button>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

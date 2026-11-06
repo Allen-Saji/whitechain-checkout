@@ -2,3 +2,5 @@ node_modules
 .local
 artifacts
 pnpm-lock.yaml
+
+web/dist/
