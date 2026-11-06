@@ -1,0 +1,36 @@
+{
+  "chainId": 1874,
+  "buyerFlow": "MetaMask authorization through the browser checkout UI",
+  "refundFlow": "Merchant wallet session and signed authorization through the HTTP API",
+  "receipt": {
+    "id": "b7202c79-4349-4aee-95c8-aab18bf4a300",
+    "orderId": "633e77ac-0236-4d45-8e4b-a5c78a326071",
+    "amount": "100000",
+    "merchant": "0xc87432AC54946511DA46842755653834a2CDD53B",
+    "buyer": "0xB03CbD002a037Cef1dFB33d3c956452f0B4081F0",
+    "state": "partially_refunded",
+    "refunded": "50000",
+    "fulfillment": "fulfilled",
+    "expiresAt": 1793979319,
+    "chainId": 1874,
+    "token": "0xcedfB56113143d55b2358b8CFbB0dEB5Ad2f55a7",
+    "paymentJob": {
+      "status": "confirmed",
+      "error": null,
+      "transactionHash": "0xc716bb29c05f6e5b11f72ee8217ac85a0059c262ec4977db8b8ad20b0438fd34"
+    },
+    "timeline": [
+      {
+        "type": "Paid",
+        "transactionHash": "0xc716bb29c05f6e5b11f72ee8217ac85a0059c262ec4977db8b8ad20b0438fd34",
+        "blockNumber": 12382492
+      },
+      {
+        "type": "Refunded",
+        "transactionHash": "0x102c840acfdcfc509c1b5ba050307d74abdc2d75f557c0824607ae1e791ed905",
+        "blockNumber": 12382582
+      }
+    ]
+  },
+  "checkedAt": "2026-11-06T15:29:14.553Z"
+}

@@ -47,3 +47,24 @@ The funding transaction is journaled and reused on restart. The checkout and ref
 - Before backup, use SQLite's supported online backup facilities or stop writers and capture the database consistently. Copying only the main file while WAL writes are active can lose recent state.
 
 Public hosting additionally requires TLS, managed secrets and backups, a reviewed webhook egress policy, explicit trusted-proxy configuration, metrics/alerts, and deployment-specific rate limiting. The current code has not undergone an independent security audit.
+
+## Local browser demo
+
+Provision a merchant first, with a webhook that reaches the booking service on port 4301. The database and merchant credentials must describe the same merchant. Set these paths to your own local files:
+
+```sh
+DB_PATH=.local/demo.sqlite \
+DEMO_MERCHANT_ID=your-demo-merchant \
+MERCHANT_CONFIG=.local/merchant.json \
+BOOKING_DB=.local/bookings.sqlite \
+DEMO_PRICE=100000 \
+DEMO_WORKER=0 pnpm demo
+```
+
+Run `pnpm dev:web` separately and open `http://127.0.0.1:4210/demo`. This example starts with submission paused. Set `DEMO_WORKER=1` only when ready to process queued work and spend testnet gas. The supervisor starts API, booking receiver and, when enabled, worker; stopping it stops its children. `DEMO_PRICE` is a positive integer amount in token base units, defaulting to 2000000. Existing order amounts remain immutable when the configured price changes.
+
+For an isolated fork, also set `LOCAL_FORK=1` and use that fork's deployment, relay wallet and merchant database. Browser signing requires a wallet configured for the same network endpoint. Never reuse a relay key across independent databases.
+
+`DEMO_MERCHANT_ID` opts that merchant into public read-only demo data. Omit it from a private production deployment. Merchant sessions last seven days; the signature challenge lasts five minutes. Use the registered payout wallet to sign in at `/merchant`; refund execution requires another token authorization and sufficient USDT. A canceled refund signature can leave an unsigned reservation until its 15-minute deadline and worker cleanup.
+
+Public hosting must implement the static routes and same-origin API proxies described in [browser application](landing.md). Configure the production origin before login; origin checks deliberately reject mismatches.

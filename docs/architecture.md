@@ -41,6 +41,14 @@ The relay is permissioned. The service is trusted to create merchant-priced orde
 
 Keep route modules focused on validation and application operations. Share authorization encoding through `protocol.mjs`; do not duplicate the nonce rules in clients. Add a regression test for each failure mode before changing worker persistence or payment/refund accounting.
 
-Database startup reads `PRAGMA user_version` inside a transaction. Version 1 preserves existing prototype rows and adds queue indexes and refund-job uniqueness. Add a new numbered migration and increment the supported version for future schema changes. Never silently rewrite existing migration semantics or open a newer schema with older code.
+Database startup reads `PRAGMA user_version` inside a transaction. Version 1 preserves existing prototype rows and adds queue indexes and refund-job uniqueness. Version 2 adds wallet sign-in challenges and hashed merchant sessions. Add a new numbered migration and increment the supported version for future schema changes. Never silently rewrite existing migration semantics or open a newer schema with older code.
 
 The current SQLite deployment is single-host. A multi-host deployment needs a shared transactional store, explicit locking/leases, distributed rate limits, and migration coordination. Do not share one relay key across independent databases.
+
+## Browser authentication
+
+Merchant sign-in verifies an EOA signature over a domain-bound message with a single-use, five-minute challenge. A successful signature creates a seven-day HttpOnly, SameSite=Strict session cookie (Secure on HTTPS). Only the token hash is stored. Logout revokes the session. Merchant mutations authenticated with cookies require an exact `APP_ORIGIN` match. Server integrations retain bearer API keys; these keys never enter the browser.
+
+The payout address must already belong to an operator-provisioned merchant. Signing in does not create a merchant. The public `/v1/demo` endpoint is disabled unless `DEMO_MERCHANT_ID` explicitly selects a demo merchant whose order and delivery data may be public. Keep customer information out of that fixture.
+
+`DEMO_WORKER=0` prevents payment/refund submission and worker cycles. This is an application pause, separate from the onchain payment pause, and also suspends indexing and notification retries.

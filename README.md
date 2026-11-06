@@ -16,6 +16,8 @@ This flow is useful for buyers who already hold USDT and merchants who want dire
 
 See [architecture](docs/architecture.md) for trust boundaries and state transitions, and [operations](docs/operations.md) for deployment, local fork setup and recovery procedures.
 
+A separate browser checkout completed a 0.1 USDT payment signed in MetaMask and a 0.05 USDT refund signed through the authenticated merchant HTTP API. The receipt records confirmed settlement and fulfillment. See [browser flow evidence](deployments/whitechain-sepolia/browser-checkout-result.json). The merchant browser refund controls still require a separate owner-wallet end-to-end check.
+
 ## Components
 
 - `contracts/RelayCheckout.sol`: payment receipts, cumulative refund limits, relay rotation, payment pause. Refunds remain enabled while paused.
@@ -24,9 +26,9 @@ See [architecture](docs/architecture.md) for trust boundaries and state transiti
 - `sdk/server.mjs`: server-only integration client and raw-body webhook verifier.
 - `examples/booking/server.mjs`: separate workshop merchant with server-owned pricing and durable, idempotent booking creation.
 
-## Landing page
+## Browser application
 
-Run `pnpm dev:web` to view the marketing site at `http://127.0.0.1:4210`. Build with `pnpm build:web`. The landing includes an illustrative recovery walkthrough and links to live testnet evidence; it does not submit payments. See [landing documentation](docs/landing.md).
+Run `pnpm dev:web` to view the site at `http://127.0.0.1:4210`. The application includes a demo shop at `/demo`, wallet checkout and receipts at `/checkout/:id`, and merchant operations at `/merchant`. Build with `pnpm build:web`. See [browser documentation](docs/landing.md) and [service setup](docs/operations.md).
 
 ## Run
 
@@ -54,7 +56,7 @@ Run these services in separate terminals, from the repository root. Merchant cre
 
 For public testnet, omit `LOCAL_FORK`, use the separate testnet wallet/deployment files, and provision a reviewed HTTPS merchant webhook. `MERCHANT_CONFIG` selects the demo's credentials file. The service binds to loopback; deployment requires a TLS reverse proxy and managed secrets. No public hosting is configured here.
 
-`CHECKOUT_BASE_URL` can point to a separately implemented hosted checkout route. Until configured, `checkoutUrl` is null. No hosted checkout page or embedded wallet is bundled.
+Set `CHECKOUT_BASE_URL` to the application origin followed by `/checkout`. Until configured, `checkoutUrl` is null. The checkout UI is bundled; public hosting and embedded wallets are not configured.
 
 ## Integration contract
 

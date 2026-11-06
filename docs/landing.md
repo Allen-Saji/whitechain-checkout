@@ -1,6 +1,6 @@
-# Landing page
+# Browser application
 
-The marketing site lives in `web/` and builds independently of the API and worker. It uses semantic HTML, CSS and small browser-side JavaScript modules, without a frontend framework or wallet dependencies.
+The site lives in `web/`. The marketing page uses HTML, CSS and small JavaScript modules. Product routes load separate application modules and viem for wallet interaction. Fonts and artwork are bundled locally.
 
 ```sh
 pnpm dev:web
@@ -8,22 +8,27 @@ pnpm build:web
 pnpm preview:web
 ```
 
-Development and preview bind to `http://127.0.0.1:4210`. The production output is `web/dist/`; host it as a static site. The API remains on its separate port. Build output is ignored by Git. The build does not delete previous output files automatically.
+Development and preview bind to `http://127.0.0.1:4210`. `/v1` proxies to API port 4200; `/shop-api` proxies to the separate booking service on port 4301. See [operations](operations.md) for service configuration. Build output is ignored under `web/dist/`; builds do not delete previous output automatically.
 
-## Content and behavior
+## Routes
 
-The main CTA opens an illustrative payment-recovery walkthrough. It does not connect a wallet, create a checkout, send funds, or claim to be the hosted payment application. The payment/refund evidence links point to recorded Whitechain Sepolia transactions. The SDK snippet uses the repository's actual server client and keeps merchant keys server-side.
+- `/`: marketing page, integration example, evidence links and illustrative recovery walkthrough. The primary CTA opens the real demo shop.
+- `/demo`: server-priced test workshop purchase. A stable browser order ID prevents duplicate creation on retry.
+- `/checkout/:id`: wallet selection, Whitechain network selection, bounded token authorization, payment status, fulfillment status, refunds and printable receipt.
+- `/merchant`: wallet sign-in, merchant-scoped orders, delivery history/retry and signed partial refunds. An explicitly configured public demo is read-only until the registered merchant signs in.
 
-The walkthrough supports pointer input, arrow keys, Home and End. Mobile navigation supports Escape. FAQs use native disclosures. The copy button uses the Clipboard API and reports when manual copying is necessary. Section entrances and the floating hero receipt respect reduced-motion preferences.
+The checkout distinguishes a queued request, confirmed payment and acknowledged fulfillment. Buyers sign token authorizations; the relayer pays transaction gas. The merchant API key stays in the booking server. Connecting a buyer wallet does not grant merchant access.
 
-The fixed Download PDF button invokes native browser printing. Print styles remove controls and reveal all content. The walkthrough prints its current selected state; it is a static snapshot, not an interactive exported demo.
+## Hosting
 
-## Artwork and typography
+Serve `web/dist/index.html` for `/`, and `web/dist/product.html` for `/demo`, `/merchant` and `/checkout/*`. Serve generated assets normally. Configure same-origin reverse proxies for `/v1/*` and `/shop-api/*`; a static fallback alone cannot operate checkout. Set `APP_ORIGIN` to the exact HTTPS application origin and `CHECKOUT_BASE_URL` to that origin plus `/checkout`. Vite's development proxy is not a production server.
 
-`web/public/continuity-sculpture.png` is generated decorative artwork with transparency. The receipt over it is live HTML, not text baked into the image. Do not use the sculpture as evidence of settlement or custody. The title and receipt are marked as illustrative where relevant. The working `checkout.` wordmark is provisional.
+## Design and accessibility
 
-DM Sans regular/semibold and Instrument Serif italic are bundled locally. Their upstream license files are included beside the font files. The page does not request third-party fonts.
+The orange sculpture is decorative; the receipt overlay is HTML. DM Sans and Instrument Serif are bundled with their licenses. `checkout.` remains a provisional wordmark.
 
-## Validation
+The landing walkthrough supports arrow keys, Home and End. Mobile navigation supports Escape, FAQs use native disclosures, and motion respects reduced-motion preferences. Native printing exports a static view. Product pages expose payment progress and errors as status messages; the merchant table scrolls inside its container on phones.
 
-Formatting, lint, contract compilation, offline tests and the production web build pass together through `pnpm check`. Browser checks covered desktop and narrow phone layouts, loaded artwork/fonts, outage and recovery controls, mobile menu/Escape, reduced-motion styling and print visibility. No horizontal overflow was observed at a 320 CSS-pixel browser width. This does not constitute an automated accessibility or cross-browser audit.
+## Verification scope
+
+`pnpm check` covers formatting, lint, contract compilation, offline tests and the production build. Browser checks covered desktop and phone layouts and a real MetaMask buyer authorization on Whitechain Sepolia. A merchant-signed HTTP API refund was confirmed and displayed in the receipt. The registered merchant's browser sign-in/refund flow has not yet been exercised end to end. These checks are not an accessibility audit or a cross-browser certification.
