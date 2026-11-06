@@ -93,6 +93,12 @@ export function registerCheckoutRoutes(
     const c = checkout(req.params.id);
     return {
       ...publicOrder(c),
+      paymentJob:
+        db
+          .prepare(
+            "SELECT status,error,tx_hash AS transactionHash FROM jobs WHERE checkout_id=? AND kind='pay'",
+          )
+          .get(c.id) ?? null,
       timeline: db
         .prepare(
           'SELECT type,tx_hash AS transactionHash,block_number AS blockNumber FROM chain_events WHERE checkout_id=? ORDER BY block_number,id',
@@ -112,6 +118,7 @@ export function registerCheckoutRoutes(
     return jsonSafe(typed(c, payer));
   });
   app.post('/v1/checkouts/:id/pay', async (req) => {
+    requireThat(config.relayEnabled !== false, 503, 'RELAYER_PAUSED');
     available();
     const c = checkout(req.params.id);
     const input = z

@@ -102,6 +102,10 @@ export async function loadConfig() {
     throw Error('INVALID_CONFIRMATIONS');
   return {
     local,
+    relayEnabled: process.env.DEMO_WORKER !== '0',
+    appOrigin: new URL(process.env.APP_ORIGIN ?? 'http://127.0.0.1:4210')
+      .origin,
+    demoMerchantId: process.env.DEMO_MERCHANT_ID,
     rpc,
     chain,
     client,

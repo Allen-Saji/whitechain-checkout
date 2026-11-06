@@ -1,3 +1,6 @@
+import { registerSessionRoutes } from './api/sessions.mjs';
+import { registerDemoRoutes } from './api/demo.mjs';
+import { REQUIRED_TOKEN } from './protocol.mjs';
 import Fastify from 'fastify';
 import { z } from 'zod';
 import { createApiContext } from './api/context.mjs';
@@ -6,6 +9,10 @@ import { registerMerchantRoutes } from './api/merchant.mjs';
 import { registerRefundRoutes } from './api/refunds.mjs';
 export function buildApi(config, db) {
   const app = Fastify({ logger: false, bodyLimit: 16000 });
+  app.addHook('onSend', async (req, reply, payload) => {
+    reply.header('cache-control', 'no-store');
+    return payload;
+  });
   const limits = new Map();
   app.addHook('onRequest', async (req, reply) => {
     const now = Date.now();
@@ -45,7 +52,21 @@ export function buildApi(config, db) {
       .prepare('SELECT halted FROM checkpoints WHERE id=1')
       .get()?.halted,
   }));
-  const context = createApiContext(db);
+  app.get('/v1/config', async () => ({
+    relayEnabled: config.relayEnabled !== false,
+    chainId: 1874,
+    token: REQUIRED_TOKEN,
+    tokenName: config.tokenName ?? 'Tether USD',
+    decimals: 6,
+    router: config.router,
+    local: config.local,
+    explorerUrl: config.local ? null : 'https://explorer.testnet.whitechain.io',
+    rpcUrl: config.rpc,
+    appOrigin: config.appOrigin,
+  }));
+  registerSessionRoutes(app, config, db);
+  registerDemoRoutes(app, config, db);
+  const context = createApiContext(db, config);
   registerCheckoutRoutes(app, config, db, context);
   registerMerchantRoutes(app, db, context);
   registerRefundRoutes(app, config, db, context);

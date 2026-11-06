@@ -15,6 +15,7 @@ export function createWorker(config, db, { fetcher = fetch } = {}) {
     index = createIndexer(config, db, owns),
     deliver = createOutbox(db, owns, fetcher);
   async function tick() {
+    if (config.relayEnabled === false) return false;
     const acquired = transaction(db, () => {
       db.prepare(
         "INSERT INTO leases VALUES('worker',?,?) ON CONFLICT(name) DO UPDATE SET owner=excluded.owner,expires_at=excluded.expires_at WHERE leases.expires_at<=?",

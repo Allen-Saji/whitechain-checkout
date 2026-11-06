@@ -77,6 +77,7 @@ export function registerRefundRoutes(
     };
   });
   app.post('/v1/merchant/refunds/:id/submit', async (req) => {
+    requireThat(config.relayEnabled !== false, 503, 'RELAYER_PAUSED');
     available();
     const m = merchant(req);
     const r = db.prepare('SELECT * FROM refunds WHERE id=?').get(req.params.id);

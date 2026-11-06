@@ -11,7 +11,7 @@ export function openDatabase(path) {
     );
     transaction(db, () => {
       const version = db.prepare('PRAGMA user_version').get().user_version;
-      if (version > 1) throw Error('DATABASE_VERSION_TOO_NEW');
+      if (version > 2) throw Error('DATABASE_VERSION_TOO_NEW');
       if (version === 0) {
         db.exec(
           readFileSync(
@@ -20,6 +20,18 @@ export function openDatabase(path) {
           ),
         );
         db.exec('PRAGMA user_version=1');
+      }
+      if (version < 2) {
+        db.exec(
+          readFileSync(
+            new URL(
+              './storage/migrations/002-wallet-sessions.sql',
+              import.meta.url,
+            ),
+            'utf8',
+          ),
+        );
+        db.exec('PRAGMA user_version=2');
       }
     });
   } catch (error) {

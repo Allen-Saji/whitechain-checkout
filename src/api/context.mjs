@@ -1,13 +1,16 @@
+import { sessionMerchant } from './sessions.mjs';
 import { hash } from '../crypto.mjs';
 import { requireThat } from './validation.mjs';
-export function createApiContext(db) {
+export function createApiContext(db, config = {}) {
   const merchant = (req) => {
     const key = req.headers.authorization?.match(/^Bearer (.+)$/)?.[1];
     const row =
       key &&
       db.prepare('SELECT * FROM merchants WHERE api_hash=?').get(hash(key));
-    requireThat(row, 401, 'INVALID_API_KEY');
-    return row;
+    const authenticated =
+      row ?? (!key ? sessionMerchant(req, config, db) : null);
+    requireThat(authenticated, 401, 'SIGN_IN_REQUIRED');
+    return authenticated;
   };
   const checkout = (id) => {
     const row = db
