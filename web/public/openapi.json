@@ -1,0 +1,862 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Checkout integration API",
+    "version": "0.1.0",
+    "description": "Whitechain Sepolia USDT checkout. Keep API keys server-side. Cookie-authenticated mutations also require an exact matching Origin header. Receipts and merchant responses use no-store. Amounts are decimal strings in six-decimal token base units. The SDK is packaged in the source repository; no npm release is claimed."
+  },
+  "servers": [
+    {
+      "url": "https://checkout.allensaji.dev"
+    }
+  ],
+  "paths": {
+    "/v1/config": {
+      "get": {
+        "summary": "Network, contracts and current relayer availability",
+        "operationId": "get__v1_config",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "503": {
+            "description": "Processing paused or relay restriction"
+          }
+        }
+      }
+    },
+    "/v1/checkouts": {
+      "post": {
+        "summary": "Create an idempotent checkout with immutable order details",
+        "operationId": "post__v1_checkouts",
+        "responses": {
+          "201": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "503": {
+            "description": "Processing paused or relay restriction"
+          }
+        },
+        "security": [
+          {
+            "merchantApiKey": []
+          },
+          {
+            "merchantSession": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "orderId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 120
+                  },
+                  "amount": {
+                    "type": "string",
+                    "pattern": "^[1-9][0-9]*$",
+                    "description": "USDT base units: 1000000 = 1 USDT"
+                  },
+                  "title": {
+                    "type": "string",
+                    "maxLength": 120,
+                    "default": "Order"
+                  },
+                  "description": {
+                    "type": "string",
+                    "maxLength": 500,
+                    "default": ""
+                  },
+                  "expiresIn": {
+                    "type": "integer",
+                    "minimum": 60,
+                    "maximum": 3600,
+                    "default": 900
+                  }
+                },
+                "required": ["orderId", "amount"],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/checkouts/{id}": {
+      "get": {
+        "summary": "Read a receipt and confirmed transaction timeline",
+        "operationId": "get__v1_checkouts_id",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "503": {
+            "description": "Processing paused or relay restriction"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    },
+    "/v1/checkouts/{id}/authorization": {
+      "post": {
+        "summary": "Request EIP-3009 payment authorization",
+        "operationId": "post__v1_checkouts_id_authorization",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "503": {
+            "description": "Processing paused or relay restriction"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "payer": {
+                    "type": "string"
+                  }
+                },
+                "required": ["payer"],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/checkouts/{id}/pay": {
+      "post": {
+        "summary": "Submit buyer signature; queued does not mean settled",
+        "operationId": "post__v1_checkouts_id_pay",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "503": {
+            "description": "Processing paused or relay restriction"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "payer": {
+                    "type": "string"
+                  },
+                  "signature": {
+                    "type": "string"
+                  }
+                },
+                "required": ["payer", "signature"],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/merchant/orders": {
+      "get": {
+        "summary": "Recent orders with recovery eligibility",
+        "operationId": "get__v1_merchant_orders",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "503": {
+            "description": "Processing paused or relay restriction"
+          }
+        },
+        "security": [
+          {
+            "merchantApiKey": []
+          },
+          {
+            "merchantSession": []
+          }
+        ]
+      }
+    },
+    "/v1/merchant/deliveries": {
+      "get": {
+        "summary": "Notification delivery status",
+        "operationId": "get__v1_merchant_deliveries",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "503": {
+            "description": "Processing paused or relay restriction"
+          }
+        },
+        "security": [
+          {
+            "merchantApiKey": []
+          },
+          {
+            "merchantSession": []
+          }
+        ]
+      }
+    },
+    "/v1/merchant/orders/{id}/retry-payment": {
+      "post": {
+        "summary": "Retry the same unbroadcast failed payment while its authorization is valid",
+        "operationId": "post__v1_merchant_orders_id_retry_payment",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "503": {
+            "description": "Processing paused or relay restriction"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "merchantApiKey": []
+          },
+          {
+            "merchantSession": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/merchant/deliveries/{id}/retry": {
+      "post": {
+        "summary": "Queue notification delivery again",
+        "operationId": "post__v1_merchant_deliveries_id_retry",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "503": {
+            "description": "Processing paused or relay restriction"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "merchantApiKey": []
+          },
+          {
+            "merchantSession": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/merchant/orders/{id}/fulfillment": {
+      "post": {
+        "summary": "Acknowledge fulfillment after a confirmed payment",
+        "operationId": "post__v1_merchant_orders_id_fulfillment",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "503": {
+            "description": "Processing paused or relay restriction"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "merchantApiKey": []
+          },
+          {
+            "merchantSession": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "state": {
+                    "type": "string",
+                    "enum": ["fulfilled", "unavailable"]
+                  }
+                },
+                "required": ["state"],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/merchant/orders/{id}/refunds": {
+      "get": {
+        "summary": "Read pending reservations, history and available refund amount",
+        "operationId": "get__v1_merchant_orders_id_refunds",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "503": {
+            "description": "Processing paused or relay restriction"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "merchantApiKey": []
+          },
+          {
+            "merchantSession": []
+          }
+        ]
+      },
+      "post": {
+        "summary": "Reserve a refund and receive merchant authorization",
+        "operationId": "post__v1_merchant_orders_id_refunds",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "503": {
+            "description": "Processing paused or relay restriction"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "merchantApiKey": []
+          },
+          {
+            "merchantSession": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "refundId": {
+                    "type": "string"
+                  },
+                  "amount": {
+                    "type": "string",
+                    "pattern": "^[1-9][0-9]*$",
+                    "description": "USDT base units: 1000000 = 1 USDT"
+                  }
+                },
+                "required": ["refundId", "amount"],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/merchant/refunds/{id}/submit": {
+      "post": {
+        "summary": "Submit merchant signature; confirmation is asynchronous",
+        "operationId": "post__v1_merchant_refunds_id_submit",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "503": {
+            "description": "Processing paused or relay restriction"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "merchantApiKey": []
+          },
+          {
+            "merchantSession": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "signature": {
+                    "type": "string"
+                  }
+                },
+                "required": ["signature"],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/merchant/refunds/{id}/cancel": {
+      "post": {
+        "summary": "Release an unsubmitted refund reservation",
+        "operationId": "post__v1_merchant_refunds_id_cancel",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "503": {
+            "description": "Processing paused or relay restriction"
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "merchantApiKey": []
+          },
+          {
+            "merchantSession": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/merchant/settings": {
+      "get": {
+        "summary": "Read merchant configuration without returning secrets",
+        "operationId": "get__v1_merchant_settings",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "503": {
+            "description": "Processing paused or relay restriction"
+          }
+        },
+        "security": [
+          {
+            "merchantSession": []
+          }
+        ]
+      },
+      "post": {
+        "summary": "Update name and HTTPS webhook; session required",
+        "operationId": "post__v1_merchant_settings",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "503": {
+            "description": "Processing paused or relay restriction"
+          }
+        },
+        "security": [
+          {
+            "merchantSession": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "businessName": {
+                    "type": "string"
+                  },
+                  "webhookUrl": {
+                    "type": "string"
+                  }
+                },
+                "required": ["businessName", "webhookUrl"],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/merchant/webhook/check": {
+      "post": {
+        "summary": "Send signed integration.check without moving funds; session required",
+        "operationId": "post__v1_merchant_webhook_check",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "503": {
+            "description": "Processing paused or relay restriction"
+          }
+        },
+        "security": [
+          {
+            "merchantSession": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/merchant/credentials/rotate": {
+      "post": {
+        "summary": "Rotate one credential; session required",
+        "operationId": "post__v1_merchant_credentials_rotate",
+        "responses": {
+          "200": {
+            "description": "Success"
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Authentication required"
+          },
+          "409": {
+            "description": "State conflict"
+          },
+          "503": {
+            "description": "Processing paused or relay restriction"
+          }
+        },
+        "security": [
+          {
+            "merchantSession": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "credential": {
+                    "type": "string",
+                    "enum": ["apiKey", "webhookSecret"]
+                  }
+                },
+                "required": ["credential"],
+                "additionalProperties": false
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "merchantApiKey": {
+        "type": "http",
+        "scheme": "bearer"
+      },
+      "merchantSession": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "checkout_session"
+      }
+    }
+  }
+}

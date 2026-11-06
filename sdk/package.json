@@ -1,0 +1,24 @@
+{
+  "name": "@whitechain-checkout/server",
+  "version": "0.1.0",
+  "description": "Server-side Checkout client and signed webhook verification",
+  "type": "module",
+  "main": "./server.mjs",
+  "types": "./server.d.mts",
+  "exports": {
+    ".": {
+      "types": "./server.d.mts",
+      "import": "./server.mjs"
+    }
+  },
+  "files": [
+    "server.mjs",
+    "server.d.mts",
+    "webhooks.mjs",
+    "skills"
+  ],
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "license": "UNLICENSED"
+}

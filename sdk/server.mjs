@@ -1,9 +1,9 @@
-export { verifyWebhook } from '../src/crypto.mjs';
+export { verifyWebhook } from './webhooks.mjs';
 /** Server-only client. Never expose the merchant API key in browser bundles. */
 export function checkoutClient({ baseUrl, apiKey }) {
   async function request(path, body) {
     const response = await fetch(new URL(path, baseUrl), {
-      method: 'POST',
+      method: body === undefined ? 'GET' : 'POST',
       headers: {
         authorization: 'Bearer ' + apiKey,
         'content-type': 'application/json',
@@ -13,12 +13,34 @@ export function checkoutClient({ baseUrl, apiKey }) {
     });
     const data = await response.json();
     if (!response.ok)
-      throw Error(data.error?.code ?? 'CHECKOUT_REQUEST_FAILED');
+      throw Object.assign(
+        Error(data.error?.code ?? 'CHECKOUT_REQUEST_FAILED'),
+        {
+          code: data.error?.code ?? 'CHECKOUT_REQUEST_FAILED',
+          httpStatus: response.status,
+        },
+      );
     return data;
   }
   return {
-    create: ({ orderId, amount }) =>
-      request('/v1/checkouts', { orderId, amount }),
+    get: (id) => request('/v1/checkouts/' + encodeURIComponent(id)),
+    retryPayment: (id) =>
+      request(
+        '/v1/merchant/orders/' + encodeURIComponent(id) + '/retry-payment',
+        {},
+      ),
+    refunds: (id) =>
+      request('/v1/merchant/orders/' + encodeURIComponent(id) + '/refunds'),
+    cancelRefund: (id) =>
+      request('/v1/merchant/refunds/' + encodeURIComponent(id) + '/cancel', {}),
+    create: ({ orderId, amount, title, description, expiresIn }) =>
+      request('/v1/checkouts', {
+        orderId,
+        amount,
+        title,
+        description,
+        expiresIn,
+      }),
     fulfill: (checkoutId, state = 'fulfilled') =>
       request(
         '/v1/merchant/orders/' +

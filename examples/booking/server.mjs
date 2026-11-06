@@ -60,8 +60,16 @@ app.post('/book', async (req, reply) => {
     id,
     price,
   );
-  const existing = db.prepare('SELECT amount FROM orders WHERE id=?').get(id);
-  const order = await checkout.create({ orderId: id, amount: existing.amount });
+  const existing = db
+    .prepare('SELECT amount,checkout_id FROM orders WHERE id=?')
+    .get(id);
+  if (existing.checkout_id) return checkout.get(existing.checkout_id);
+  const order = await checkout.create({
+    orderId: id,
+    amount: existing.amount,
+    title: 'Build with stablecoins',
+    description: 'A practical workshop on integrating USDT payments.',
+  });
   db.prepare('UPDATE orders SET checkout_id=? WHERE id=?').run(order.id, id);
   return order;
 });
