@@ -53,7 +53,9 @@ export function Settings() {
       setName(p.businessName);
       setUrl(p.webhookUrl);
       setNotice(
-        'Settings saved. Check the connection to activate your integration.',
+        p.webhookVerifiedAt
+          ? 'Settings saved.'
+          : 'Settings saved. Send a connection check before creating checkouts.',
       );
     } catch (e) {
       setError(errorMessage(e));
@@ -108,9 +110,9 @@ export function Settings() {
     return (
       <section className="empty-state">
         <h1>
-          Your integration
+          Sign in to manage
           <br />
-          <em>starts here.</em>
+          <em>your integration.</em>
         </h1>
         <p>
           Sign in with your merchant payout wallet to manage your connection and
@@ -128,7 +130,7 @@ export function Settings() {
     return (
       <>
         <ErrorNotice message={error} />
-        <LoadingState label="Loading integration settings" />
+        {!error ? <LoadingState label="Loading integration settings" /> : null}
         {error ? (
           <button
             className="button button-outline"
@@ -151,18 +153,20 @@ export function Settings() {
         <div>
           <p className="app-kicker">INTEGRATION SETTINGS</p>
           <h1>
-            Your business.
+            Connect
             <br />
-            <em>Connected.</em>
+            <em>your app.</em>
           </h1>
           <p className="app-lede">
-            Manage where payments arrive and how your server hears about them.
+            Set your business name and the webhook URL for payment updates.
           </p>
         </div>
         <span
           className={'status-pill ' + (data.webhookVerifiedAt ? 'success' : '')}
         >
-          {data.webhookVerifiedAt ? 'Connected' : 'Setup required'}
+          {data.webhookVerifiedAt
+            ? 'Webhook connected'
+            : 'Webhook setup required'}
         </span>
       </div>
       {notice ? (
@@ -185,10 +189,10 @@ export function Settings() {
             <label htmlFor="payout-wallet">Payout wallet</label>
             <input id="payout-wallet" readOnly value={data.payout} />
             <p className="fine-print">
-              This wallet owns your account and receives payments. Changing
-              payout wallets is not supported yet.
+              Payments go to this wallet. It also signs refunds and account
+              changes. The payout wallet cannot be changed on this account.
             </p>
-            <label htmlFor="webhook-url">Notification endpoint</label>
+            <label htmlFor="webhook-url">Webhook URL</label>
             <input
               id="webhook-url"
               type="url"
@@ -199,8 +203,8 @@ export function Settings() {
               maxLength={2000}
             />
             <p className="fine-print">
-              Use a public HTTPS endpoint. Verify signed events and return a
-              successful response after durable acceptance.
+              Your server receives payment and refund updates here. Use a public
+              HTTPS URL and verify each notification before saving it.
             </p>
             <button className="button button-primary" disabled={busy || !dirty}>
               {busy ? 'Please wait...' : 'Save settings'}
@@ -208,6 +212,11 @@ export function Settings() {
           </form>
           <section className="settings-section">
             <h2>Connection check</h2>
+            {dirty ? (
+              <p role="status">
+                Save your changes before checking the connection.
+              </p>
+            ) : null}
             <p>
               Send an <code>integration.check</code> event to your saved
               endpoint. This does not create an order or move funds.
@@ -248,13 +257,14 @@ export function Settings() {
         <aside className="purchase-card settings-form">
           <p className="app-kicker">SERVER CREDENTIALS</p>
           <h2>
-            Keep the keys
+            API key and
             <br />
-            on your server.
+            webhook secret.
           </h2>
           <p>
-            The API key creates checkouts. The webhook secret verifies incoming
-            events. Existing values are never returned by the settings API.
+            Use the API key for server requests and the webhook secret to verify
+            notifications. Lost a credential? Replace it below and update your
+            server with the new value.
           </p>
           <div className="settings-section">
             <h3>API key</h3>
@@ -292,7 +302,7 @@ export function Settings() {
             </>
           ) : null}
           <Link className="text-link access-preview" href="/docs/webhooks">
-            Notification integration guide &#8599;
+            Webhook setup guide &#8599;
           </Link>
         </aside>
       </div>

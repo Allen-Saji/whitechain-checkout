@@ -79,10 +79,11 @@ export function RefundDialog({
       if (!/^(?:0|[1-9]\d*)(?:\.\d{1,6})?$/.test(value.trim()))
         throw Error('Enter an amount with up to six decimal places.');
       const amount = parseUnits(value.trim(), 6);
+      if (amount <= 0n) throw Error('Enter an amount greater than zero.');
       const current = await refresh();
       const available =
         BigInt(current.available) + BigInt(reservation.current?.amount ?? '0');
-      if (amount <= 0n || amount > available)
+      if (amount > available)
         throw Error(
           'This amount exceeds the balance available for a new refund.',
         );
@@ -149,16 +150,29 @@ export function RefundDialog({
         ) : null}
         <p className="app-kicker">MERCHANT-AUTHORIZED REFUND</p>
         <h2 id="refund-title">
-          Return a little.
+          Review
           <br />
-          Or <em>all of it.</em>
+          <em>your refund.</em>
         </h2>
         <p>
           Funds return to the original buyer from your merchant wallet. A
           submitted refund is confirmed on-chain before the receipt changes.
         </p>
         {!summary ? (
-          <LoadingState label="Checking refundable balance" compact />
+          error ? (
+            <button
+              type="button"
+              className="text-link"
+              onClick={() => {
+                setError(null);
+                void refresh().catch((e) => setError(errorMessage(e)));
+              }}
+            >
+              Try loading refunds again
+            </button>
+          ) : (
+            <LoadingState label="Checking refundable balance" compact />
+          )
         ) : (
           <>
             <dl className="simple-facts">
@@ -188,7 +202,7 @@ export function RefundDialog({
                   <p>
                     <strong>{money(r.amount)} USDT</strong> -{' '}
                     {r.status === 'queued'
-                      ? 'Processing on-chain'
+                      ? 'Submitted for processing'
                       : 'Awaiting authorization'}
                   </p>
                   {r.status === 'created' ? (

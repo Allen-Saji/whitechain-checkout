@@ -10,8 +10,8 @@ export function ProductShell({
 }) {
   const pathname = usePathname();
   const links = [
-    ...(showExample ? [['/shop', 'Shop']] : []),
-    ['/merchant', 'Merchant'],
+    ...(showExample ? [['/shop', 'Example store']] : []),
+    ['/merchant', 'Workspace'],
     ['/start', 'Get started'],
     ['/docs', 'Docs'],
   ];
@@ -46,7 +46,7 @@ export function ProductShell({
         {children}
       </main>
       <footer className="app-footer wrap">
-        <span>USDT payments. Orders accounted for.</span>
+        <span>USDT checkout and payment management.</span>
         <Link href="/">About checkout &#8599;</Link>
       </footer>
     </div>

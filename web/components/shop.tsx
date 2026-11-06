@@ -3,12 +3,13 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { api, errorMessage, money, orderLabel } from '@/lib/api';
-import type { Workspace } from '@/lib/types';
+import type { Config, Workspace } from '@/lib/types';
 import { ErrorNotice } from './ui';
 export function Shop() {
   const router = useRouter();
   const creatingId = useRef<string | null>(null);
   const [product, setProduct] = useState<{ amount: string } | null>(null);
+  const [config, setConfig] = useState<Config | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [last, setLast] = useState<string | null>(null);
@@ -18,6 +19,13 @@ export function Shop() {
   } | null>(null);
   useEffect(() => {
     let alive = true;
+    api<Config>('/v1/config')
+      .then((c) => {
+        if (alive) setConfig(c);
+      })
+      .catch((e) => {
+        if (alive) setError(errorMessage(e));
+      });
     api<{ amount: string }>('/shop-api/product')
       .then((p) => {
         if (alive) setProduct(p);
@@ -79,6 +87,12 @@ export function Shop() {
   return (
     <>
       <ErrorNotice message={error} />
+      {config && !config.relayEnabled ? (
+        <p className="workspace-mode" role="status">
+          Payment processing is paused. You can explore a checkout or view the
+          completed receipt below.
+        </p>
+      ) : null}
       <div className="app-kicker">CHECKOUT EXAMPLE</div>
       <div className="shop-grid">
         <section className="shop-description">
@@ -100,11 +114,7 @@ export function Shop() {
         </section>
         <aside className="purchase-card">
           <p className="app-kicker">WORKSHOP CHECKOUT</p>
-          <h2>
-            One order.
-            <br />
-            Every step connected.
-          </h2>
+          <h2>Studio workshop</h2>
           <p className="purchase-price">
             {product ? money(product.amount) : '...'} <span>USDT</span>
           </p>
@@ -115,7 +125,7 @@ export function Shop() {
             </div>
             <div>
               <dt>Your gas fee</dt>
-              <dd>Covered by the relayer</dd>
+              <dd>Covered by Checkout</dd>
             </div>
             <div>
               <dt>Delivery</dt>
@@ -145,9 +155,9 @@ export function Shop() {
         </aside>
       </div>
       <div className="shop-after">
-        <span>Want to see the other side?</span>
-        <Link className="text-link" href="/merchant">
-          Explore the merchant workspace &#8599;
+        <span>See how the merchant manages this order.</span>
+        <Link className="text-link" href="/merchant?view=example">
+          View example orders &#8599;
         </Link>
       </div>
       {recorded ? (

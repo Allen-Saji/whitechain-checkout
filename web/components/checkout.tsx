@@ -144,14 +144,22 @@ export function Checkout({
     <>
       <ErrorNotice message={error} />
       <Link className="back-link" href={showExample ? '/shop' : '/'}>
-        &#8592; {showExample ? 'Back to shop' : 'About checkout'}
+        &#8592; {showExample ? 'Example store' : 'About Checkout'}
       </Link>
       <div className="checkout-heading">
         <p className="app-kicker">ORDER RECEIPT</p>
         <h1>
           {paid ? (
             <>
-              Payment <em>received.</em>
+              {order.state === 'refunded' ? (
+                'Payment refunded.'
+              ) : order.state === 'partially_refunded' ? (
+                'Payment partially refunded.'
+              ) : (
+                <>
+                  Payment <em>received.</em>
+                </>
+              )}
             </>
           ) : queued ? (
             <>
@@ -165,9 +173,13 @@ export function Checkout({
         </h1>
         <p className="app-lede">
           {paid
-            ? order.fulfillment === 'fulfilled'
-              ? 'Your order is complete. Your receipt is below.'
-              : 'Your payment is confirmed. We are waiting for the merchant to finish your order.'
+            ? order.state === 'refunded'
+              ? 'The full payment has been returned. See the refund transaction below.'
+              : order.state === 'partially_refunded'
+                ? `${money(order.refunded)} USDT has been returned to the buyer. Your receipt shows both transactions.`
+                : order.fulfillment === 'fulfilled'
+                  ? 'Your order is complete. Your receipt is below.'
+                  : 'Your payment is confirmed. We are waiting for the merchant to finish your order.'
             : queued
               ? 'Your signed payment is being processed. You can return to this page at any time.'
               : "Pay in USDT. We'll cover the network fee."}
@@ -180,8 +192,8 @@ export function Checkout({
               {order.merchantName?.[0] ?? 'C'}
             </span>
             <div>
-              <h2>{order.title}</h2>
-              <p>{order.merchantName}</p>
+              <h2>{order.title || orderLabel(order.orderId)}</h2>
+              <p>{order.merchantName || shortAddress(order.merchant)}</p>
               {order.description ? <p>{order.description}</p> : null}
             </div>
           </div>
@@ -200,7 +212,7 @@ export function Checkout({
             </div>
             <div>
               <dt>Customer gas fee</dt>
-              <dd>Covered by relayer</dd>
+              <dd>Covered by Checkout</dd>
             </div>
             <div>
               <dt>Network</dt>
@@ -270,14 +282,14 @@ export function Checkout({
               <span className="receipt-success-mark" aria-hidden="true">
                 &#10003;
               </span>
-              <p className="app-kicker">PAYMENT RECEIPT</p>
+              <p className="app-kicker">ORIGINAL PAYMENT</p>
               <h2>
                 {money(order.amount)} <em>USDT</em>
               </h2>
               <p className="card-description">
                 {order.fulfillment === 'fulfilled'
                   ? 'The merchant has completed your order.'
-                  : 'The payment is recorded. Delivery will be retried if the merchant is temporarily offline.'}
+                  : 'Payment is confirmed. The merchant has not marked the order complete yet.'}
               </p>
               <PrintButton className="button button-outline full-width">
                 Print receipt
@@ -302,9 +314,9 @@ export function Checkout({
                 {expired ? 'CHECKOUT EXPIRED' : 'PAYMENT NEEDS ATTENTION'}
               </p>
               <h2>
-                Let&apos;s check
-                <br />
-                <em>what happened.</em>
+                {expired
+                  ? 'Payment window closed.'
+                  : 'Payment needs attention.'}
               </h2>
               <p className="card-description">
                 {expired
@@ -315,7 +327,7 @@ export function Checkout({
                 className="button button-outline full-width"
                 href={showExample ? '/shop' : '/'}
               >
-                Return
+                {showExample ? 'Open example store' : 'About Checkout'}
               </Link>
             </>
           ) : (
@@ -338,7 +350,7 @@ export function Checkout({
               </button>
               <p className="wallet-balance">
                 {!config.relayEnabled
-                  ? 'Payments are temporarily paused. Your order remains available.'
+                  ? 'Payments are paused. You cannot pay this order right now.'
                   : connected
                     ? connected.balance + ' USDT available'
                     : 'Connect a wallet with USDT on Whitechain Sepolia.'}

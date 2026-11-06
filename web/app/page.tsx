@@ -76,13 +76,13 @@ export default function Landing() {
               Stay <em>in control.</em>
             </h1>
             <p className="hero-lede">
-              A ready-to-use checkout for your business. Collect payments
-              directly to your wallet, and manage orders, receipts and refunds
-              from one workspace.
+              Add hosted USDT checkout to your app. Collect payments directly to
+              your wallet, and manage orders, receipts and refunds from one
+              workspace.
             </p>
             <div className="hero-actions">
               <a className="button button-primary" href="/register">
-                Start accepting payments <span aria-hidden="true">&#8599;</span>
+                Create merchant account <span aria-hidden="true">&#8599;</span>
               </a>
               <a className="text-link" href="#product">
                 See how it works <span aria-hidden="true">&#8595;</span>
@@ -169,9 +169,9 @@ export default function Landing() {
             <div className="flow-description reveal">
               <p className="eyebrow">02 / KEEP THE ORDER MOVING</p>
               <h2 id="flow-title">
-                They pay.
+                A confirmed payment.
                 <br />
-                You keep <em>moving.</em>
+                An order to <em>fulfill.</em>
               </h2>
               <p className="section-lede">
                 Your customer gets a simple checkout.
@@ -234,8 +234,7 @@ export default function Landing() {
                   <span>
                     <strong>Pick up where you left off.</strong>
                     <small>
-                      Notifications retry so your app can complete the order
-                      once.
+                      Notifications retry when your app is available again.
                     </small>
                   </span>
                   <span className="step-arrow" aria-hidden="true">
@@ -277,7 +276,7 @@ export default function Landing() {
                   </div>
                   <div>
                     <dt>Customer gas</dt>
-                    <dd>Covered by relayer</dd>
+                    <dd>Covered by Checkout</dd>
                   </div>
                   <div>
                     <dt>Fulfillment</dt>
@@ -308,7 +307,7 @@ export default function Landing() {
         </section>
         <section className="details-section section wrap">
           <div className="section-heading reveal">
-            <p className="eyebrow">03 / MORE OF THE PAYMENT WORK, HANDLED</p>
+            <p className="eyebrow">03 / PAYMENTS AND REFUNDS</p>
             <h2>
               From the first payment
               <br />
@@ -322,11 +321,12 @@ export default function Landing() {
             <article>
               <span>01</span>
               <div>
-                <h3>Let customers pay with the USDT they have.</h3>
+                <h3>Accept USDT without a customer gas fee.</h3>
                 <p>
                   Share a hosted checkout from your app. Customers connect a
-                  wallet and authorize the amount. Checkout covers the network
-                  fee, so they do not need a separate gas-token balance.
+                  wallet with USDT on Whitechain Sepolia and authorize the
+                  amount. Checkout covers the network fee, so they do not need a
+                  separate gas-token balance.
                 </p>
               </div>
             </article>
@@ -344,7 +344,7 @@ export default function Landing() {
             <article>
               <span>03</span>
               <div>
-                <h3>Handle returns from the same workspace.</h3>
+                <h3>Issue full or partial refunds.</h3>
                 <p>
                   Review the amount available, authorize a full or partial
                   refund, and follow it through confirmation. The original
@@ -462,8 +462,9 @@ export default function Landing() {
               </summary>
               <p>
                 Confirmed payments stay recorded. We retry the merchant
-                notification when your endpoint is available. Your integration
-                must fulfill idempotently and acknowledge completion.
+                notification when your endpoint is available. Your app must
+                handle repeated notifications without delivering the purchase
+                twice, then report the order as fulfilled.
               </p>
             </details>
             <details>
@@ -506,7 +507,7 @@ export default function Landing() {
             feel <em>simple.</em>
           </h2>
           <a className="button button-primary" href="/register">
-            Start accepting payments <span aria-hidden="true">&#8599;</span>
+            Create merchant account <span aria-hidden="true">&#8599;</span>
           </a>
           <p>
             Set up your business, connect your app, and create your first
@@ -519,7 +520,7 @@ export default function Landing() {
           <img src="/mark.svg" alt="" width="28" height="28" />
           checkout.
         </a>
-        <span>Your payments. Your business.</span>
+        <span>USDT checkout and payment management.</span>
         <a
           href="https://github.com/Allen-Saji/whitechain-checkout"
           target="_blank"

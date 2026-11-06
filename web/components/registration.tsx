@@ -53,23 +53,22 @@ export function Registration() {
         <section>
           <p className="app-kicker">CREATE YOUR MERCHANT ACCOUNT</p>
           <h1>
-            Start with
+            Create your
             <br />
-            <em>your business.</em>
+            <em>merchant account.</em>
           </h1>
           <p className="app-lede">
-            Connect a payout wallet, add your payment notifications, and keep
-            your orders in view.
+            Accept USDT in your app and manage payments from your workspace.
           </p>
           <ol className="access-features">
             <li>
               <span>01</span> Create your account with a wallet signature.
             </li>
             <li>
-              <span>02</span> Save your server credentials.
+              <span>02</span> Save your API key and webhook secret.
             </li>
             <li>
-              <span>03</span> Connect and check your notification endpoint.
+              <span>03</span> Connect your app to receive payment updates.
             </li>
           </ol>
           <Link className="text-link" href="/docs/quickstart">
@@ -106,7 +105,7 @@ export function Registration() {
                   className="button button-primary full-width"
                   href="/merchant/settings"
                 >
-                  Connect notifications &#8594;
+                  Set up your integration &#8594;
                 </Link>
               ) : (
                 <button disabled className="button button-primary full-width">
@@ -117,7 +116,7 @@ export function Registration() {
           ) : (
             <form onSubmit={submit}>
               <p className="app-kicker">BUSINESS DETAILS</p>
-              <h2>Make it yours.</h2>
+              <h2>Business details</h2>
               <label htmlFor="business-name">Business name</label>
               <input
                 id="business-name"
@@ -140,13 +139,15 @@ export function Registration() {
                 {busy
                   ? 'Check your wallet...'
                   : enabled === null
-                    ? 'Checking availability...'
+                    ? error
+                      ? 'Service unavailable'
+                      : 'Checking availability...'
                     : 'Connect wallet and create account'}
               </button>
               {enabled === false ? (
                 <p className="fine-print" role="status">
-                  Account registration is not enabled on this deployment yet.
-                  Existing merchants can still sign in.
+                  New account registration is currently unavailable. Existing
+                  merchants can still sign in.
                 </p>
               ) : null}
               <p className="access-preview">

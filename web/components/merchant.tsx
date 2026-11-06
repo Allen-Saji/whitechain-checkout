@@ -166,9 +166,9 @@ export function MerchantWorkspace({
           <div>
             <p className="app-kicker">YOUR MERCHANT WORKSPACE</p>
             <h1>
-              Payments in.
+              Manage your
               <br />
-              <em>Everything in view.</em>
+              <em>payments.</em>
             </h1>
             <p className="app-lede">
               Track paid orders, resolve delivery issues, and return funds from
@@ -189,9 +189,9 @@ export function MerchantWorkspace({
           <aside className="purchase-card access-card">
             <p className="app-kicker">WELCOME BACK</p>
             <h2>
-              Your wallet.
+              Sign in to
               <br />
-              Your workspace.
+              your workspace.
             </h2>
             <p>
               Sign in with your registered payout wallet to access your
@@ -202,7 +202,7 @@ export function MerchantWorkspace({
               disabled={busy}
               onClick={authenticate}
             >
-              {busy ? 'Check your wallet...' : 'Connect wallet'} &#8599;
+              {busy ? 'Check your wallet...' : 'Sign in with wallet'} &#8599;
             </button>
             <p className="fine-print">
               Sign a message to log in. No transaction or network fee is
@@ -250,7 +250,7 @@ export function MerchantWorkspace({
         <div>
           <p className="app-kicker">MERCHANT WORKSPACE</p>
           <h1>
-            Orders, <em>accounted for.</em>
+            Orders and <em>payments.</em>
           </h1>
           <p className="app-lede">
             See what&apos;s paid, what&apos;s delivered, and what needs your
@@ -458,8 +458,8 @@ export function MerchantWorkspace({
               <h3>Payment needs attention</h3>
               <p>{explainCode(order.recovery?.reason ?? order.paymentError)}</p>
               <p className="fine-print">
-                A retry reuses the original authorization. Funds are never sent
-                twice for this order.
+                This retries the original payment authorization. The contract
+                rejects a second payment for the same order.
               </p>
               {order.recovery?.retryable ? (
                 <button
@@ -479,8 +479,10 @@ export function MerchantWorkspace({
             </div>
           ) : null}
           <div className="delivery-heading">
-            <h3>Merchant notifications</h3>
-            <span>Delivery and fulfillment are tracked separately.</span>
+            <h3>Webhook deliveries</h3>
+            <span>
+              A delivered webhook does not mean the order is fulfilled.
+            </span>
           </div>
           <div className="delivery-list">
             {deliveries.length ? (
@@ -495,10 +497,14 @@ export function MerchantWorkspace({
                   </div>
                   <button
                     className="button button-outline"
-                    disabled={data.readOnly || retrying !== null}
+                    disabled={
+                      data.readOnly ||
+                      retrying !== null ||
+                      !config?.relayEnabled
+                    }
                     onClick={() => retry(d.id)}
                   >
-                    {retrying === d.id ? 'Retrying...' : 'Retry delivery'}
+                    {retrying === d.id ? 'Retrying...' : 'Resend notification'}
                   </button>
                 </div>
               ))
@@ -510,16 +516,17 @@ export function MerchantWorkspace({
           </div>
           {!config?.relayEnabled && !data.readOnly ? (
             <p className="workspace-mode">
-              Payment processing is paused. Receipts and order history remain
-              available.
+              Payments, refunds and webhook retries are paused. Receipts and
+              order history remain available.
             </p>
           ) : null}
           <div className="refund-action">
             <div>
               <h3>Refund this order</h3>
               <p>
-                Up to {money(BigInt(order.amount) - BigInt(order.refunded))}{' '}
-                USDT remains refundable. Your merchant wallet must sign.
+                {money(BigInt(order.amount) - BigInt(order.refunded))} USDT has
+                not been refunded. Review refunds to check pending reservations
+                and the amount available now.
               </p>
             </div>
             <button

@@ -1,6 +1,6 @@
 'use client';
 import { useEffect } from 'react';
-const snippet = `import { checkoutClient } from './sdk/server.mjs';
+const snippet = `import { checkoutClient } from '@whitechain-checkout/server';
 
 const checkout = checkoutClient({
   baseUrl: process.env.CHECKOUT_API,

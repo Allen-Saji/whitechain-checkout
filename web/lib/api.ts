@@ -34,7 +34,7 @@ const messages: Record<string, string> = {
     'Payments are temporarily paused. No payment or refund was submitted.',
   SIGN_IN_REQUIRED: 'Connect your registered merchant wallet to continue.',
   MERCHANT_NOT_REGISTERED:
-    'This wallet is not registered. Open Get started to set up your merchant account.',
+    'This wallet has no merchant account. Select Create account, or switch to your registered payout wallet.',
   INVALID_SIGNATURE: 'The signature could not be verified. Please try again.',
   CHALLENGE_EXPIRED: 'The sign-in request expired. Please connect again.',
   CHECKOUT_EXPIRED:
@@ -69,7 +69,7 @@ async function request<T>(path: string, body?: unknown): Promise<T> {
     });
   } catch {
     throw Error(
-      'We could not reach the service. Your order is not lost; refresh to check its status before trying again.',
+      'We could not reach Checkout. Refresh to check the latest status. If you just submitted a payment or refund, check its receipt before retrying.',
     );
   }
   const result = await response.json().catch(() => ({}));

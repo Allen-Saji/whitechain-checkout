@@ -6,9 +6,9 @@ export default function SetupPage() {
       <section className="setup-heading">
         <p className="app-kicker">BUILD WITH CHECKOUT</p>
         <h1>
-          Your business.
+          Add USDT checkout
           <br />
-          <em>Connected.</em>
+          <em>to your app.</em>
         </h1>
         <p className="app-lede">
           Keep your storefront and fulfillment. Add USDT payments, receipts, and
@@ -43,7 +43,7 @@ export default function SetupPage() {
           </article>
           <article>
             <span className="app-kicker">03 / FULFILLMENT</span>
-            <h2>Connect the handoff.</h2>
+            <h2>Confirm and fulfill the order.</h2>
             <p>
               Verify signed notifications, fulfill each order once, and
               acknowledge completion. If your server is unavailable,
@@ -56,7 +56,7 @@ export default function SetupPage() {
         </section>
         <aside className="purchase-card setup-aside">
           <p className="app-kicker">BEFORE YOU BEGIN</p>
-          <h2>A short checklist.</h2>
+          <h2>What you need</h2>
           <ul className="setup-checklist">
             <li>A payout wallet you control</li>
             <li>A server for prices and order creation</li>
@@ -82,7 +82,7 @@ export default function SetupPage() {
           </a>
           {exampleShopEnabled() ? (
             <a className="text-link access-preview" href="/shop">
-              Explore checkout &#8599;
+              Try the example store &#8599;
             </a>
           ) : null}
         </aside>
