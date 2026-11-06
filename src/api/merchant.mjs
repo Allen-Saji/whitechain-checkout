@@ -1,16 +1,35 @@
+import { paymentRecovery, retryPayment } from '../recovery.mjs';
 import { z } from 'zod';
 import { requireThat } from './validation.mjs';
-export function registerMerchantRoutes(app, db, { merchant, checkout }) {
+export function registerMerchantRoutes(
+  app,
+  db,
+  { merchant, checkout },
+  config = {},
+) {
   app.get('/v1/merchant/orders', async (req) => {
     const m = merchant(req);
     return {
       orders: db
         .prepare(
-          'SELECT * FROM checkouts WHERE merchant_id=? ORDER BY created_at DESC LIMIT 100',
+          'SELECT c.*,d.title,d.description,d.merchant_name FROM checkouts c LEFT JOIN checkout_details d ON d.checkout_id=c.id WHERE c.merchant_id=? ORDER BY c.created_at DESC LIMIT 100',
         )
-        .all(m.id),
+        .all(m.id)
+        .map((order) => {
+          const job = db
+            .prepare("SELECT * FROM jobs WHERE checkout_id=? AND kind='pay'")
+            .get(order.id);
+          return {
+            ...order,
+            recovery: paymentRecovery(job),
+            paymentError: job?.error ?? null,
+          };
+        }),
     };
   });
+  app.post('/v1/merchant/orders/:id/retry-payment', async (req) =>
+    retryPayment(db, config, req.params.id, merchant(req).id),
+  );
   app.get('/v1/merchant/deliveries', async (req) => {
     const m = merchant(req);
     return {

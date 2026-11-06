@@ -1,3 +1,4 @@
+import { refundSummary } from '../refund-state.mjs';
 import { relayScopeAllows } from '../relay-scope.mjs';
 import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
@@ -10,6 +11,33 @@ export function registerRefundRoutes(
   db,
   { merchant, checkout, available },
 ) {
+  app.get('/v1/merchant/orders/:id/refunds', async (req) => {
+    const m = merchant(req),
+      c = checkout(req.params.id);
+    requireThat(c.merchant_id === m.id, 404, 'NOT_FOUND');
+    return refundSummary(db, c);
+  });
+  app.post('/v1/merchant/refunds/:id/cancel', async (req) => {
+    const m = merchant(req);
+    return transaction(db, () => {
+      const r = db
+        .prepare('SELECT * FROM refunds WHERE id=?')
+        .get(req.params.id);
+      requireThat(
+        r && checkout(r.checkout_id).merchant_id === m.id,
+        404,
+        'NOT_FOUND',
+      );
+      requireThat(
+        r.status === 'created' &&
+          !db.prepare('SELECT id FROM jobs WHERE refund_id=?').get(r.id),
+        409,
+        'REFUND_NOT_CANCELLABLE',
+      );
+      db.prepare("UPDATE refunds SET status='cancelled' WHERE id=?").run(r.id);
+      return { id: r.id, status: 'cancelled' };
+    });
+  });
   app.post('/v1/merchant/orders/:id/refunds', async (req) => {
     const m = merchant(req),
       c = checkout(req.params.id);
@@ -32,12 +60,7 @@ export function registerRefundRoutes(
         return prior;
       }
       const current = checkout(c.id);
-      const pending = db
-        .prepare(
-          "SELECT amount FROM refunds WHERE checkout_id=? AND status IN ('created','queued')",
-        )
-        .all(c.id)
-        .reduce((sum, r) => sum + BigInt(r.amount), 0n);
+      const pending = BigInt(refundSummary(db, current).reserved);
       requireThat(
         BigInt(input.amount) + pending + BigInt(current.refunded) <=
           BigInt(c.amount),
@@ -85,6 +108,11 @@ export function registerRefundRoutes(
     requireThat(r, 404, 'NOT_FOUND');
     const c = checkout(r.checkout_id);
     requireThat(
+      ['created', 'queued', 'confirmed'].includes(r.status),
+      409,
+      'REFUND_UNAVAILABLE',
+    );
+    requireThat(
       relayScopeAllows(config, {
         checkoutId: c.id,
         kind: 'refund',
@@ -124,6 +152,19 @@ export function registerRefundRoutes(
       'INVALID_SIGNATURE',
     );
     return transaction(db, () => {
+      const current = db
+        .prepare('SELECT status,deadline FROM refunds WHERE id=?')
+        .get(r.id);
+      requireThat(
+        ['created', 'queued', 'confirmed'].includes(current.status),
+        409,
+        'REFUND_UNAVAILABLE',
+      );
+      requireThat(
+        current.deadline > Math.floor(Date.now() / 1000),
+        409,
+        'REFUND_EXPIRED',
+      );
       const prior = db
         .prepare('SELECT id,status FROM jobs WHERE refund_id=?')
         .get(r.id);

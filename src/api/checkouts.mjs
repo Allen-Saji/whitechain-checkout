@@ -22,8 +22,14 @@ export function registerCheckoutRoutes(
 ) {
   const publicOrder = (c) => ({
     id: c.id,
+    checkoutUrl: config.checkoutBaseUrl
+      ? config.checkoutBaseUrl.replace(/\/$/, '') + '/' + c.id
+      : null,
     orderId: c.external_id,
     amount: c.amount,
+    title: c.title ?? 'Order',
+    description: c.description ?? '',
+    merchantName: c.merchant_name ?? 'Merchant',
     merchant: c.payout,
     buyer: c.buyer,
     state: c.state,
@@ -52,7 +58,7 @@ export function registerCheckoutRoutes(
     const m = merchant(req);
     const profile = db
       .prepare(
-        'SELECT webhook_verified_at FROM merchant_profiles WHERE merchant_id=?',
+        'SELECT webhook_verified_at,business_name FROM merchant_profiles WHERE merchant_id=?',
       )
       .get(m.id);
     requireThat(
@@ -63,6 +69,8 @@ export function registerCheckoutRoutes(
     available();
     const input = z
       .object({
+        title: z.string().trim().min(1).max(120).default('Order'),
+        description: z.string().trim().max(500).default(''),
         orderId: z.string().min(1).max(120),
         amount,
         expiresIn: z.number().int().min(60).max(3600).default(900),
@@ -77,6 +85,17 @@ export function registerCheckoutRoutes(
         .get(m.id, input.orderId);
       if (prior) {
         requireThat(prior.amount === input.amount, 409, 'ORDER_CONFLICT');
+        const details = db
+          .prepare(
+            'SELECT title,description FROM checkout_details WHERE checkout_id=?',
+          )
+          .get(prior.id);
+        requireThat(
+          (details?.title ?? 'Order') === input.title &&
+            (details?.description ?? '') === input.description,
+          409,
+          'ORDER_CONFLICT',
+        );
         return prior.id;
       }
       const id = randomUUID();
@@ -89,6 +108,14 @@ export function registerCheckoutRoutes(
         input.amount,
         Math.floor(Date.now() / 1000) + input.expiresIn,
         Date.now(),
+      );
+      db.prepare(
+        'INSERT INTO checkout_details(checkout_id,title,description,merchant_name) VALUES(?,?,?,?)',
+      ).run(
+        id,
+        input.title,
+        input.description,
+        profile?.business_name ?? 'Merchant',
       );
       return id;
     });

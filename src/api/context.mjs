@@ -15,7 +15,7 @@ export function createApiContext(db, config = {}) {
   const checkout = (id) => {
     const row = db
       .prepare(
-        'SELECT c.*,m.payout FROM checkouts c JOIN merchants m ON m.id=c.merchant_id WHERE c.id=?',
+        'SELECT c.*,m.payout,d.title,d.description,d.merchant_name FROM checkouts c JOIN merchants m ON m.id=c.merchant_id LEFT JOIN checkout_details d ON d.checkout_id=c.id WHERE c.id=?',
       )
       .get(id);
     requireThat(row, 404, 'NOT_FOUND');

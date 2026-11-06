@@ -335,6 +335,40 @@ test(
         }),
         0n,
       );
+      const remainder = await request(
+        'GET',
+        `/v1/merchant/orders/${order.id}/refunds`,
+        undefined,
+        true,
+      );
+      assert.equal(remainder.available, '1500000');
+      const full = await request(
+        'POST',
+        `/v1/merchant/orders/${order.id}/refunds`,
+        { refundId: 'remaining-refund', amount: remainder.available },
+        true,
+      );
+      await request(
+        'POST',
+        `/v1/merchant/refunds/${full.id}/submit`,
+        { signature: await merchant.signTypedData(full.authorization) },
+        true,
+      );
+      await cycle();
+      await cycle();
+      await cycle();
+      receipt = await request('GET', `/v1/checkouts/${order.id}`);
+      assert.equal(receipt.state, 'refunded');
+      assert.equal(receipt.refunded, '2000000');
+      assert.equal(
+        await client.readContract({
+          address: REQUIRED_TOKEN,
+          abi: tokenAbi,
+          functionName: 'balanceOf',
+          args: [merchant.address],
+        }),
+        0n,
+      );
       await mined(
         await wallet.writeContract({
           address: config.router,

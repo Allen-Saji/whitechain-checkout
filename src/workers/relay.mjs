@@ -144,7 +144,7 @@ export function createRelay(config, db, owns) {
         config.globalDailyGasBudget ?? null,
       );
     } catch (e) {
-      if (e.message === 'MERCHANT_GAS_BUDGET') {
+      if (['MERCHANT_GAS_BUDGET', 'GLOBAL_GAS_BUDGET'].includes(e.message)) {
         fail(job, e.message);
         return;
       }

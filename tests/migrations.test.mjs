@@ -24,7 +24,7 @@ test('database startup preserves existing merchant data and records the schema v
   db.close();
   db = openDatabase(path);
   try {
-    assert.equal(db.prepare('PRAGMA user_version').get().user_version, 3);
+    assert.equal(db.prepare('PRAGMA user_version').get().user_version, 4);
     assert.equal(
       db.prepare('SELECT COUNT(*) AS count FROM merchants').get().count,
       1,
@@ -39,7 +39,7 @@ test('older service refuses a database migrated by newer code', () => {
       'service.sqlite',
     ),
     db = openDatabase(path);
-  db.exec('PRAGMA user_version=4');
+  db.exec('PRAGMA user_version=5');
   db.close();
   assert.throws(() => openDatabase(path), /DATABASE_VERSION_TOO_NEW/);
 });

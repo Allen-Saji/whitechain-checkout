@@ -16,7 +16,9 @@ COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/artifacts ./artifacts
 COPY package.json ./
 COPY src ./src
+COPY sdk ./sdk
 COPY deployments/whitechain-sepolia/deployment.json ./deployments/whitechain-sepolia/deployment.json
 COPY scripts/backend-entrypoint.sh ./scripts/backend-entrypoint.sh
+COPY scripts/set-merchant-budget.mjs ./scripts/set-merchant-budget.mjs
 EXPOSE 4200
 ENTRYPOINT ["sh", "scripts/backend-entrypoint.sh"]

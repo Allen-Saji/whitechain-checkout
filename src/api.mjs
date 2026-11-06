@@ -71,7 +71,7 @@ export function buildApi(config, db, options = {}) {
   registerDemoRoutes(app, config, db);
   const context = createApiContext(db, config);
   registerCheckoutRoutes(app, config, db, context);
-  registerMerchantRoutes(app, db, context);
+  registerMerchantRoutes(app, db, context, config);
   registerRefundRoutes(app, config, db, context);
   return app;
 }

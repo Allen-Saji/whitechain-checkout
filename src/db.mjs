@@ -11,7 +11,7 @@ export function openDatabase(path) {
     );
     transaction(db, () => {
       const version = db.prepare('PRAGMA user_version').get().user_version;
-      if (version > 3) throw Error('DATABASE_VERSION_TOO_NEW');
+      if (version > 4) throw Error('DATABASE_VERSION_TOO_NEW');
       if (version === 0) {
         db.exec(
           readFileSync(
@@ -44,6 +44,18 @@ export function openDatabase(path) {
           ),
         );
         db.exec('PRAGMA user_version=3');
+      }
+      if (version < 4) {
+        db.exec(
+          readFileSync(
+            new URL(
+              './storage/migrations/004-order-details.sql',
+              import.meta.url,
+            ),
+            'utf8',
+          ),
+        );
+        db.exec('PRAGMA user_version=4');
       }
     });
   } catch (error) {
