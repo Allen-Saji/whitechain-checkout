@@ -8,7 +8,8 @@ const checkout = checkoutClient({
 });
 
 const order = await checkout.create({
-  orderId: 'workshop-001',
+  orderId: 'order-001',
+  title: 'Studio workshop',
   amount: '2000000', // 2 USDT, in base units
 });`;
 const steps = [
@@ -16,25 +17,25 @@ const steps = [
     fulfillment: 'Waiting for merchant',
     title: 'Payment received.',
     detail:
-      'A confirmed receipt is recorded before your merchant app is notified.',
+      'The payment is confirmed and your app receives a signed notification.',
     counter: '01 / PAYMENT CONFIRMED',
     action: 'Simulate an outage',
     tone: 'paid',
   },
   {
     fulfillment: 'Retry queued',
-    title: 'Your app is offline. The record stays.',
+    title: 'Your server is offline. The payment is saved.',
     detail:
-      'Delivery failed. The same paid order waits safely in the delivery queue.',
+      'Checkout will retry the notification. The customer does not need to pay again.',
     counter: '02 / DELIVERY PENDING',
     action: 'Bring the merchant back',
     tone: 'offline',
   },
   {
     fulfillment: 'Fulfilled',
-    title: 'Back online. Booking confirmed.',
+    title: 'Back online. Order complete.',
     detail:
-      'The merchant receives the event and creates one booking. No second charge.',
+      'Your app receives the notification and fulfills the original order.',
     counter: '03 / ORDER RECOVERED',
     action: 'Replay the walkthrough',
     tone: 'recovered',

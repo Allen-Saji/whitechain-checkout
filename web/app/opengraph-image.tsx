@@ -1,7 +1,7 @@
 import { ImageResponse } from 'next/og';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
-export const alt = 'Checkout - Accept USDT. Keep orders in view.';
+export const alt = 'Checkout - Get paid in USDT. Stay in control.';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 export const dynamic = 'force-static';
@@ -44,8 +44,8 @@ export default async function Image() {
           letterSpacing: -4,
         }}
       >
-        <span>Accept USDT.</span>
-        <span style={{ color: '#d83c1b' }}>Keep orders in view.</span>
+        <span>Get paid in USDT.</span>
+        <span style={{ color: '#d83c1b' }}>Stay in control.</span>
       </div>
       <div
         style={{
@@ -55,7 +55,7 @@ export default async function Image() {
           color: '#6d665f',
         }}
       >
-        Sponsored gas. Recoverable delivery. Merchant-authorized refunds.
+        Hosted checkout. Payment tracking. Receipts and refunds.
       </div>
       <div
         style={{

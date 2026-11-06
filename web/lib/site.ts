@@ -1,3 +1,3 @@
 export const siteUrl = 'https://checkout.allensaji.dev';
 export const siteDescription =
-  'Accept USDT with sponsored gas, track order fulfillment, recover webhook delivery, and authorize refunds from one merchant workspace.';
+  'A hosted USDT checkout for your business. Collect payments directly to your wallet and manage orders, receipts and refunds in one workspace.';

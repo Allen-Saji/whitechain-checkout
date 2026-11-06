@@ -23,7 +23,6 @@ export default function Landing() {
               'Signed webhook delivery',
               'Merchant-authorized refunds',
             ],
-            isAccessibleForFree: true,
           }).replace(/</g, '\u003c'),
         }}
       />
@@ -41,7 +40,7 @@ export default function Landing() {
           <a href="#questions">Questions</a>
         </nav>
         <a className="button button-outline nav-action" href="/merchant">
-          Open workspace <span aria-hidden="true">&#8599;</span>
+          Sign in <span aria-hidden="true">&#8599;</span>
         </a>
         <button
           className="menu-toggle"
@@ -68,25 +67,25 @@ export default function Landing() {
         <section className="hero" id="top" aria-labelledby="hero-heading">
           <div className="hero-copy wrap">
             <p className="eyebrow">
-              <span className="status-dot"></span> USDT PAYMENTS FOR YOUR
-              BUSINESS
+              <span className="status-dot"></span> CHECKOUT AND PAYMENT
+              MANAGEMENT
             </p>
             <h1 id="hero-heading">
-              Accept USDT.
+              Get paid in USDT.
               <br />
-              Keep orders <em>in view.</em>
+              Stay <em>in control.</em>
             </h1>
             <p className="hero-lede">
-              Add USDT checkout to your app. Cover customer gas,
-              <br className="desktop-break" />
-              track paid orders, and retry notifications after an outage.
+              A ready-to-use checkout for your business. Collect payments
+              directly to your wallet, and manage orders, receipts and refunds
+              from one workspace.
             </p>
             <div className="hero-actions">
-              <a className="button button-primary" href="/merchant">
-                Open workspace <span aria-hidden="true">&#8599;</span>
+              <a className="button button-primary" href="/register">
+                Start accepting payments <span aria-hidden="true">&#8599;</span>
               </a>
               <a className="text-link" href="#product">
-                How it works <span aria-hidden="true">&#8595;</span>
+                See how it works <span aria-hidden="true">&#8595;</span>
               </a>
             </div>
           </div>
@@ -130,7 +129,7 @@ export default function Landing() {
             </div>
           </div>
           <div className="hero-bottom wrap">
-            <span>PAYMENT RECEIPTS. ORDER RECOVERY. REFUNDS.</span>
+            <span>HOSTED CHECKOUT. PAYMENT TRACKING. REFUNDS.</span>
             <span>
               <i className="status-dot"></i> Direct wallet settlement
             </span>
@@ -138,25 +137,26 @@ export default function Landing() {
         </section>
         <section className="intro section wrap" id="product">
           <div className="section-heading reveal">
-            <p className="eyebrow">01 / PAYMENT AND ORDER, TOGETHER</p>
+            <p className="eyebrow">01 / YOUR PAYMENTS, ORGANIZED</p>
             <h2>
-              An outage shouldn't
+              Know where every
               <br />
-              lose <em>the order.</em>
+              payment <em>stands.</em>
             </h2>
           </div>
           <div className="intro-copy reveal">
             <p>
-              A customer pays. Your server goes offline. The payment is real,
-              but the order is missing.
+              A wallet transfer tells you money moved. Running a business also
+              means matching that payment to an order, delivering the purchase,
+              and handling a refund when plans change.
             </p>
             <p>
-              We record the payment and retry delivery when your app returns.
-              Your integration fulfills the order once, without charging the
-              customer again.
+              Checkout keeps that work connected. Each payment has an order, a
+              receipt and a clear status, so you can see what is paid and what
+              still needs your attention.
             </p>
             <a className="text-link" href="#walkthrough">
-              Follow a payment <span aria-hidden="true">&#8600;</span>
+              Take a closer look <span aria-hidden="true">&#8600;</span>
             </a>
           </div>
         </section>
@@ -167,16 +167,16 @@ export default function Landing() {
         >
           <div className="wrap walkthrough-grid">
             <div className="flow-description reveal">
-              <p className="eyebrow">02 / FOLLOW ONE ORDER</p>
+              <p className="eyebrow">02 / KEEP THE ORDER MOVING</p>
               <h2 id="flow-title">
-                See what happens
+                They pay.
                 <br />
-                <em>after payment.</em>
+                You keep <em>moving.</em>
               </h2>
               <p className="section-lede">
-                The customer sees a payment.
+                Your customer gets a simple checkout.
                 <br />
-                You see what happens next.
+                Your app gets a reliable payment record.
               </p>
               <div
                 className="steps"
@@ -193,9 +193,9 @@ export default function Landing() {
                 >
                   <span className="step-number">01</span>
                   <span>
-                    <strong>Accept the payment.</strong>
+                    <strong>Give customers a simple checkout.</strong>
                     <small>
-                      The customer pays in USDT. The relayer covers gas.
+                      They pay in USDT. Checkout takes care of the network fee.
                     </small>
                   </span>
                   <span className="step-arrow" aria-hidden="true">
@@ -212,9 +212,10 @@ export default function Landing() {
                 >
                   <span className="step-number">02</span>
                   <span>
-                    <strong>Keep the record.</strong>
+                    <strong>Keep paid orders accounted for.</strong>
                     <small>
-                      Your app is offline. The paid order stays in the queue.
+                      If your server goes offline, the confirmed payment stays
+                      recorded.
                     </small>
                   </span>
                   <span className="step-arrow" aria-hidden="true">
@@ -231,8 +232,11 @@ export default function Landing() {
                 >
                   <span className="step-number">03</span>
                   <span>
-                    <strong>Finish the handoff.</strong>
-                    <small>Your app recovers. One order is fulfilled.</small>
+                    <strong>Pick up where you left off.</strong>
+                    <small>
+                      Notifications retry so your app can complete the order
+                      once.
+                    </small>
                   </span>
                   <span className="step-arrow" aria-hidden="true">
                     &#8599;
@@ -304,44 +308,47 @@ export default function Landing() {
         </section>
         <section className="details-section section wrap">
           <div className="section-heading reveal">
-            <p className="eyebrow">03 / WHAT YOUR CHECKOUT INCLUDES</p>
+            <p className="eyebrow">03 / MORE OF THE PAYMENT WORK, HANDLED</p>
             <h2>
-              Gas, receipts,
+              From the first payment
               <br />
-              and <em>refunds.</em>
+              to the <em>final receipt.</em>
             </h2>
             <p className="section-lede">
-              From the first payment to what comes after.
+              The tools to collect, track and manage USDT payments.
             </p>
           </div>
           <div className="detail-list reveal">
             <article>
               <span>01</span>
               <div>
-                <h3>Gas, taken care of.</h3>
+                <h3>Let customers pay with the USDT they have.</h3>
                 <p>
-                  Your customer signs the payment authorization. The relayer
-                  submits it and pays the network fee.
+                  Share a hosted checkout from your app. Customers connect a
+                  wallet and authorize the amount. Checkout covers the network
+                  fee, so they do not need a separate gas-token balance.
                 </p>
               </div>
             </article>
             <article>
               <span>02</span>
               <div>
-                <h3>Retries that respect the order.</h3>
+                <h3>Keep payment records tied to the purchase.</h3>
                 <p>
-                  Signed events and stable order IDs help your integration
-                  recover without creating duplicate bookings.
+                  See the product, customer wallet, payment and fulfillment
+                  status together. Search your orders and open a receipt
+                  whenever a customer needs an update.
                 </p>
               </div>
             </article>
             <article>
               <span>03</span>
               <div>
-                <h3>Refunds with a receipt.</h3>
+                <h3>Handle returns from the same workspace.</h3>
                 <p>
-                  Authorize a full or partial refund from your merchant wallet.
-                  Both parties can verify the onchain record.
+                  Review the amount available, authorize a full or partial
+                  refund, and follow it through confirmation. The original
+                  receipt keeps the payment and refund together.
                 </p>
               </div>
             </article>
@@ -350,7 +357,7 @@ export default function Landing() {
         <section className="evidence wrap reveal">
           <div>
             <p className="eyebrow">VERIFIABLE SETTLEMENT</p>
-            <h3>Every payment has a record.</h3>
+            <h3>A receipt you can check for yourself.</h3>
             <p>
               A 2 USDT payment. A 0.5 USDT refund.
               <br />
@@ -378,14 +385,14 @@ export default function Landing() {
           <div className="reveal">
             <p className="eyebrow">04 / FOR BUILDERS</p>
             <h2>
-              Connect your app.
+              A few lines to checkout.
               <br />
-              Keep <em>your workflow.</em>
+              Built for <em>your app.</em>
             </h2>
             <p className="section-lede">
-              Create a checkout on your server.
-              <br />
-              Connect your existing fulfillment logic.
+              Set the price on your server, create a checkout, and send your
+              customer to the payment link. A signed notification tells your app
+              when the payment is confirmed.
             </p>
             <a
               className="text-link"
@@ -420,12 +427,25 @@ export default function Landing() {
           <div className="reveal">
             <p className="eyebrow">A FEW THINGS TO KNOW</p>
             <h2>
-              Clear from
+              A few answers
               <br />
-              the <em>start.</em>
+              before you <em>start.</em>
             </h2>
           </div>
           <div className="faq-list reveal">
+            <details>
+              <summary>
+                Can I use this for billing and invoices?
+                <span aria-hidden="true">+</span>
+              </summary>
+              <p>
+                You can connect Checkout to your billing system to collect a
+                USDT payment and keep its receipt with the order. Invoice
+                creation, recurring subscriptions and tax calculations stay in
+                your billing system.
+              </p>
+            </details>
+
             <details>
               <summary>
                 Does the customer need WBT?<span aria-hidden="true">+</span>
@@ -479,21 +499,19 @@ export default function Landing() {
           </div>
         </section>
         <section className="closing wrap reveal">
-          <p className="eyebrow">BUILT FOR YOUR NEXT INTEGRATION</p>
+          <p className="eyebrow">READY FOR YOUR FIRST PAYMENT</p>
           <h2>
-            Add USDT payments
+            Make getting paid
             <br />
-            to <em>your app.</em>
+            feel <em>simple.</em>
           </h2>
-          <a
-            className="button button-primary"
-            href="https://github.com/Allen-Saji/whitechain-checkout"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Build with checkout <span aria-hidden="true">&#8599;</span>
+          <a className="button button-primary" href="/register">
+            Start accepting payments <span aria-hidden="true">&#8599;</span>
           </a>
-          <p>Direct settlement. Recoverable orders. Verifiable refunds.</p>
+          <p>
+            Set up your business, connect your app, and create your first
+            checkout.
+          </p>
         </section>
       </main>
       <footer className="site-footer wrap">
@@ -501,7 +519,7 @@ export default function Landing() {
           <img src="/mark.svg" alt="" width="28" height="28" />
           checkout.
         </a>
-        <span>Payments, with continuity.</span>
+        <span>Your payments. Your business.</span>
         <a
           href="https://github.com/Allen-Saji/whitechain-checkout"
           target="_blank"
