@@ -1,4 +1,16 @@
 const messages: Record<string, string> = {
+  PAYMENT_NOT_RETRYABLE:
+    'This payment cannot be safely retried. Check its receipt and authorization expiry.',
+  AUTHORIZATION_EXPIRED:
+    'The authorization expired. Ask the customer to create a new order; do not reuse the old signature.',
+  TRANSACTION_REVIEW_REQUIRED:
+    'A transaction was already signed or broadcast. The operator must reconcile its chain status before taking action.',
+  REFUND_UNAVAILABLE:
+    'This refund request is cancelled, expired or failed. Review the current refund balance before creating another.',
+  REFUND_NOT_CANCELLABLE:
+    'This refund has already been submitted and cannot be cancelled.',
+  TRANSACTION_GAS_CAP:
+    'The estimated network fee exceeds the per-transaction cap. Wait for lower fees or contact the operator.',
   RELAY_SCOPE_RESTRICTED:
     'Payment processing is currently limited to a selected checkout. No transaction was submitted.',
   REGISTRATION_DISABLED:
@@ -26,14 +38,14 @@ const messages: Record<string, string> = {
   INVALID_SIGNATURE: 'The signature could not be verified. Please try again.',
   CHALLENGE_EXPIRED: 'The sign-in request expired. Please connect again.',
   CHECKOUT_EXPIRED:
-    'This checkout expired. Start a new order from the workshop page.',
+    'This checkout expired. Start a new order with the merchant.',
   CHECKOUT_UNAVAILABLE:
     'This checkout is no longer available for a new payment.',
   SELF_PAYMENT: 'Use a buyer wallet different from the merchant wallet.',
   OVER_REFUND: 'That amount exceeds the remaining refundable balance.',
   RATE_LIMITED: 'Too many requests. Wait a moment and try again.',
   MERCHANT_GAS_BUDGET:
-    'The merchant gas budget is exhausted. No payment was submitted.',
+    'The merchant gas allowance was reached before broadcasting. Ask the operator to review the allowance, then retry while the authorization is valid.',
   TRANSACTION_REVERTED:
     'The transaction did not complete. Check your wallet balance and contact the merchant.',
   SIMULATION_REVERTED:
@@ -44,12 +56,13 @@ const messages: Record<string, string> = {
     'The refund authorization expired. Create a new refund request.',
   DEMO_UNAVAILABLE: 'The workspace preview is not available on this server.',
 };
-export async function api<T>(path: string, body?: unknown): Promise<T> {
+async function request<T>(path: string, body?: unknown): Promise<T> {
   let response;
   try {
     response = await fetch(path, {
       method: body === undefined ? 'GET' : 'POST',
       credentials: 'same-origin',
+      cache: 'no-store',
       headers: body === undefined ? {} : { 'content-type': 'application/json' },
       body: body === undefined ? undefined : JSON.stringify(body),
       signal: AbortSignal.timeout(15000),
@@ -72,6 +85,21 @@ export async function api<T>(path: string, body?: unknown): Promise<T> {
     );
   }
   return result as T;
+}
+// Coalesce simultaneous reads only; never retain account or payment responses.
+const reads = new Map<string, Promise<unknown>>();
+export function api<T>(path: string, body?: unknown): Promise<T> {
+  if (body !== undefined) {
+    reads.clear();
+    return request<T>(path, body);
+  }
+  const existing = reads.get(path);
+  if (existing) return existing as Promise<T>;
+  const pending = request<T>(path).finally(() => {
+    if (reads.get(path) === pending) reads.delete(path);
+  });
+  reads.set(path, pending);
+  return pending;
 }
 export const explainCode = (code: string | null | undefined) =>
   messages[code ?? ''] ??
@@ -105,7 +133,7 @@ export function money(value: string | bigint | null | undefined) {
 }
 export const orderLabel = (id: string) =>
   /^[a-f0-9]{8}-[a-f0-9-]{27}$/i.test(id)
-    ? 'WK-' + id.slice(0, 8).toUpperCase()
+    ? 'ORD-' + id.slice(0, 8).toUpperCase()
     : id;
 export const transactionLink = (hash: string | null | undefined) =>
   /^0x[a-fA-F0-9]{64}$/.test(hash ?? '')

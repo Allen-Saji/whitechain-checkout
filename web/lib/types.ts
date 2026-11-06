@@ -9,6 +9,9 @@ export interface Config {
   local: boolean;
 }
 export interface Receipt {
+  title: string;
+  description: string;
+  merchantName: string;
   id: string;
   orderId: string;
   amount: string;
@@ -33,6 +36,10 @@ export interface Session {
   merchant: Merchant;
 }
 export interface Order {
+  title?: string;
+  merchant_name?: string;
+  recovery?: { retryable: boolean; reason: string | null };
+  paymentError?: string | null;
   id: string;
   external_id: string;
   amount: string;
@@ -88,4 +95,16 @@ export interface MerchantSettings {
 export interface MerchantCredentials {
   apiKey: string;
   webhookSecret: string;
+}
+
+export interface RefundSummary {
+  reserved: string;
+  available: string;
+  refunds: {
+    id: string;
+    external_id: string;
+    amount: string;
+    deadline: number;
+    status: string;
+  }[];
 }

@@ -4,13 +4,14 @@ import Link from 'next/link';
 import {
   api,
   errorMessage,
+  explainCode,
   errorStatus,
   money,
   orderLabel,
   shortAddress,
 } from '@/lib/api';
 import type { Config, Delivery, Order, Session, Workspace } from '@/lib/types';
-import { signIn } from '@/lib/wallet';
+import { LoadingState } from './loading-state';
 import { ErrorNotice } from './ui';
 import { RefundDialog } from './refund-dialog';
 const labels: Record<string, string> = {
@@ -34,6 +35,8 @@ export function MerchantWorkspace({
   preview: boolean;
   showExample: boolean;
 }) {
+  const [query, setQuery] = useState(''),
+    [filter, setFilter] = useState('all');
   const [data, setData] = useState<Workspace | null>(null),
     [config, setConfig] = useState<Config | null>(null),
     [loading, setLoading] = useState(true);
@@ -66,13 +69,17 @@ export function MerchantWorkspace({
   }, [preview]);
   useEffect(() => {
     let alive = true;
+    let refreshing = false;
     async function refresh() {
+      if (refreshing) return;
+      refreshing = true;
       try {
         const [next, c] = await Promise.all([
           load(),
           api<Config>('/v1/config'),
         ]);
         if (alive) {
+          setError(null);
           setData(next);
           setConfig(c);
           setLoading(false);
@@ -82,6 +89,8 @@ export function MerchantWorkspace({
           setError(errorMessage(e));
           setLoading(false);
         }
+      } finally {
+        refreshing = false;
       }
     }
     void refresh();
@@ -98,7 +107,7 @@ export function MerchantWorkspace({
     setBusy(true);
     try {
       if (data && !data.readOnly) await api('/v1/session/logout', {});
-      else await signIn();
+      else await (await import('@/lib/wallet')).signIn();
       setData(await load());
       setActive(null);
     } catch (e) {
@@ -123,13 +132,30 @@ export function MerchantWorkspace({
       setRetrying(null);
     }
   }
+  async function retryPayment(id: string) {
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      await api(
+        '/v1/merchant/orders/' + encodeURIComponent(id) + '/retry-payment',
+        {},
+      );
+      setData(await load());
+      setNotice(
+        'The original payment is queued again. No new authorization was created.',
+      );
+    } catch (e) {
+      setError(errorMessage(e));
+    } finally {
+      setBusy(false);
+    }
+  }
   if (loading)
     return (
       <>
         <ErrorNotice message={error} />
-        <p className="loading-label" role="status">
-          Loading your workspace...
-        </p>
+        <LoadingState label="Loading your workspace" />
       </>
     );
   if (!data)
@@ -203,6 +229,13 @@ export function MerchantWorkspace({
   const confirmed = data.orders.filter((o) => confirmedStates.has(o.state)),
     total = confirmed.reduce((sum, o) => sum + BigInt(o.amount), 0n),
     refunded = confirmed.reduce((sum, o) => sum + BigInt(o.refunded), 0n);
+  const visibleOrders = data.orders.filter(
+    (o) =>
+      (filter === 'all' || o.state === filter) &&
+      [o.title, o.external_id, o.buyer].some((v) =>
+        v?.toLowerCase().includes(query.toLowerCase().trim()),
+      ),
+  );
   const order = data.orders.find((o) => o.id === active),
     deliveries = data.deliveries.filter((d) => d.checkout_id === active);
   return (
@@ -277,8 +310,42 @@ export function MerchantWorkspace({
         <h2>Recent orders</h2>
         <span>Updates every 10 seconds</span>
       </div>
+      <div className="order-filters">
+        <div>
+          <label htmlFor="order-search">Find an order</label>
+          <input
+            id="order-search"
+            type="search"
+            placeholder="Title, order ID or buyer wallet"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+        </div>
+        <div>
+          <label htmlFor="order-status">Payment status</label>
+          <select
+            id="order-status"
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+          >
+            <option value="all">All statuses</option>
+            {[
+              'created',
+              'queued',
+              'paid',
+              'partially_refunded',
+              'refunded',
+              'failed',
+            ].map((s) => (
+              <option value={s} key={s}>
+                {label(s)}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
       <div className="orders-table">
-        {data.orders.length ? (
+        {visibleOrders.length ? (
           <table>
             <thead>
               <tr>
@@ -292,10 +359,10 @@ export function MerchantWorkspace({
               </tr>
             </thead>
             <tbody>
-              {data.orders.map((o) => (
+              {visibleOrders.map((o) => (
                 <tr key={o.id}>
                   <td>
-                    <strong>{orderLabel(o.external_id)}</strong>
+                    <strong>{o.title ?? orderLabel(o.external_id)}</strong>
                     <small>
                       {new Date(o.created_at).toLocaleString(undefined, {
                         dateStyle: 'medium',
@@ -329,10 +396,15 @@ export function MerchantWorkspace({
           </table>
         ) : (
           <div className="empty-state">
-            <h3>Your first order starts here.</h3>
+            <h3>
+              {data.orders.length
+                ? 'No matching orders.'
+                : 'Your first order starts here.'}
+            </h3>
             <p>
-              Connect your server and create a checkout to receive your first
-              order.
+              {data.orders.length
+                ? 'Try another search or choose a different status.'
+                : 'Connect your server and create a checkout to receive your first order.'}
             </p>
             <Link className="text-link" href="/merchant/settings">
               Connect your integration &#8599;
@@ -369,6 +441,31 @@ export function MerchantWorkspace({
               <dd>{money(order.refunded)} USDT</dd>
             </div>
           </dl>
+          {order.state === 'failed' ? (
+            <div className="recovery-panel" role="status">
+              <h3>Payment needs attention</h3>
+              <p>{explainCode(order.recovery?.reason ?? order.paymentError)}</p>
+              <p className="fine-print">
+                A retry reuses the original authorization. Funds are never sent
+                twice for this order.
+              </p>
+              {order.recovery?.retryable ? (
+                <button
+                  className="button button-outline"
+                  disabled={busy || data.readOnly || !config?.relayEnabled}
+                  onClick={() => retryPayment(order.id)}
+                >
+                  {busy ? 'Queuing...' : 'Retry original payment'}
+                </button>
+              ) : (
+                <p>
+                  Ask the customer to start a new order if this authorization
+                  expired. Transactions already signed or broadcast require
+                  operator review.
+                </p>
+              )}
+            </div>
+          ) : null}
           <div className="delivery-heading">
             <h3>Merchant notifications</h3>
             <span>Delivery and fulfillment are tracked separately.</span>
@@ -399,6 +496,12 @@ export function MerchantWorkspace({
               </p>
             )}
           </div>
+          {!config?.relayEnabled && !data.readOnly ? (
+            <p className="workspace-mode">
+              Payment processing is paused. Receipts and order history remain
+              available.
+            </p>
+          ) : null}
           <div className="refund-action">
             <div>
               <h3>Refund this order</h3>
@@ -434,7 +537,13 @@ export function MerchantWorkspace({
           config={config}
           onClose={() => setRefund(null)}
           onSubmitted={async () => {
-            setData(await load());
+            try {
+              setData(await load());
+            } catch {
+              setError(
+                'Refund submitted. Refresh the workspace to check confirmation; do not submit it again.',
+              );
+            }
             setNotice(
               'Refund submitted. The receipt will update after confirmation.',
             );

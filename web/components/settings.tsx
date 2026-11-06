@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { api, errorMessage, errorStatus } from '@/lib/api';
 import type { MerchantSettings } from '@/lib/types';
 import { ErrorNotice } from './ui';
+import { LoadingState } from './loading-state';
 import { Credential } from './credentials';
 export function Settings() {
   const [data, setData] = useState<MerchantSettings | null>(null),
@@ -127,7 +128,15 @@ export function Settings() {
     return (
       <>
         <ErrorNotice message={error} />
-        <p role="status">Loading integration settings...</p>
+        <LoadingState label="Loading integration settings" />
+        {error ? (
+          <button
+            className="button button-outline"
+            onClick={() => window.location.reload()}
+          >
+            Try again
+          </button>
+        ) : null}
       </>
     );
   const dirty =

@@ -1,7 +1,4 @@
+import { LoadingState } from '@/components/loading-state';
 export default function Loading() {
-  return (
-    <p className="loading-label" role="status">
-      Loading...
-    </p>
-  );
+  return <LoadingState label="Opening your workspace" />;
 }

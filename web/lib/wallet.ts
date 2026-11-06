@@ -46,6 +46,8 @@ async function chooseProvider(): Promise<EIP1193Provider> {
     dialog.className = 'wallet-dialog';
     const title = document.createElement('h2');
     title.textContent = 'Choose your wallet';
+    title.id = 'wallet-picker-title';
+    dialog.setAttribute('aria-labelledby', title.id);
     dialog.append(title);
     const description = document.createElement('p');
     description.textContent = 'Connect an account on Whitechain Sepolia.';

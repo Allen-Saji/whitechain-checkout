@@ -12,7 +12,7 @@ import {
   transactionLink,
 } from '@/lib/api';
 import type { Authorization, Config, Receipt } from '@/lib/types';
-import { connectWallet, signAuthorization, tokenBalance } from '@/lib/wallet';
+import { LoadingState } from './loading-state';
 import { ErrorNotice, PrintButton } from './ui';
 const paidStates = new Set(['paid', 'partially_refunded', 'refunded']);
 export function Checkout({
@@ -24,6 +24,7 @@ export function Checkout({
 }) {
   const [config, setConfig] = useState<Config | null>(null),
     [order, setOrder] = useState<Receipt | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
   const [error, setError] = useState<string | null>(null),
     [busy, setBusy] = useState(false),
     [connecting, setConnecting] = useState(false);
@@ -33,18 +34,24 @@ export function Checkout({
   } | null>(null);
   useEffect(() => {
     let alive = true;
+    let refreshing = false;
     const refresh = async () => {
+      if (refreshing) return;
+      refreshing = true;
       try {
         const [c, o] = await Promise.all([
           api<Config>('/v1/config'),
           api<Receipt>('/v1/checkouts/' + encodeURIComponent(id)),
         ]);
         if (alive) {
+          setError(null);
           setConfig(c);
           setOrder(o);
         }
       } catch (e) {
         if (alive) setError(errorMessage(e));
+      } finally {
+        refreshing = false;
       }
     };
     void refresh();
@@ -55,12 +62,13 @@ export function Checkout({
       alive = false;
       clearInterval(timer);
     };
-  }, [id, busy]);
+  }, [id, busy, refreshKey]);
   async function connect() {
     if (!config) return;
     setConnecting(true);
     setError(null);
     try {
+      const { connectWallet, tokenBalance } = await import('@/lib/wallet');
       const w = await connectWallet();
       setConnected({
         address: w.address,
@@ -77,6 +85,8 @@ export function Checkout({
     setBusy(true);
     setError(null);
     try {
+      const { connectWallet, tokenBalance, signAuthorization } =
+        await import('@/lib/wallet');
       const w = await connectWallet();
       if (w.address.toLowerCase() !== connected.address.toLowerCase())
         throw Error(
@@ -115,9 +125,16 @@ export function Checkout({
     return (
       <>
         <ErrorNotice message={error} />
-        <p className="loading-label" role="status">
-          Loading your order...
-        </p>
+        {error ? (
+          <button
+            className="button button-outline"
+            onClick={() => setRefreshKey((v) => v + 1)}
+          >
+            Try again
+          </button>
+        ) : (
+          <LoadingState label="Loading your order" />
+        )}
       </>
     );
   const paid = paidStates.has(order.state),
@@ -130,7 +147,7 @@ export function Checkout({
         &#8592; {showExample ? 'Back to shop' : 'About checkout'}
       </Link>
       <div className="checkout-heading">
-        <p className="app-kicker">WORKSHOP BOOKING</p>
+        <p className="app-kicker">ORDER RECEIPT</p>
         <h1>
           {paid ? (
             <>
@@ -159,10 +176,13 @@ export function Checkout({
       <div className="checkout-grid">
         <section className="checkout-summary">
           <div className="summary-top">
-            <span className="order-monogram">W</span>
+            <span className="order-monogram" aria-hidden="true">
+              {order.merchantName?.[0] ?? 'C'}
+            </span>
             <div>
-              <h2>Build with stablecoins</h2>
-              <p>Workshop order</p>
+              <h2>{order.title}</h2>
+              <p>{order.merchantName}</p>
+              {order.description ? <p>{order.description}</p> : null}
             </div>
           </div>
           <dl className="simple-facts">
@@ -192,7 +212,11 @@ export function Checkout({
               <span>Payment</span>
               <strong className={'status-pill ' + (paid ? 'success' : '')}>
                 {paid
-                  ? 'Confirmed'
+                  ? order.state === 'refunded'
+                    ? 'Refunded'
+                    : order.state === 'partially_refunded'
+                      ? 'Partially refunded'
+                      : 'Confirmed'
                   : queued
                     ? 'Processing'
                     : order.state === 'failed'
