@@ -23,7 +23,9 @@ Configure these variables in the hosting platform:
 | `DEMO_WORKER`                   | `0` during setup; explicitly set `1` to process transactions.                   |
 | `MERCHANT_REGISTRATION_ENABLED` | `1` to permit wallet-signed account creation.                                   |
 | `GLOBAL_DAILY_GAS_BUDGET`       | Shared daily execution-gas reservation cap in wei; default `50000000000000000`. |
-| `REGISTRATION_DAILY_GAS_BUDGET` | Initial per-merchant cap in wei; default `1000000000000000`.                    |
+| `REGISTRATION_DAILY_GAS_BUDGET` | Initial per-merchant cap in wei; default `10000000000000000`.                   |
+
+The registration allowance is 0.01 WBT per merchant per UTC day. It reserves estimated execution gas, not the payment amount. Fees vary, so this is not a guaranteed transaction count. The shared daily cap remains 0.05 WBT across all merchants. Changing the registration setting affects new accounts only; existing merchants retain their stored limits. Keep the worker paused while changing deployment configuration.
 
 With an environment relay key, the service reads the public testnet deployment manifest by default. `DEPLOYMENT_PATH` can select another manifest. Startup validates chain, token and configured relay against the contract. No private wallet file is included in the image.
 

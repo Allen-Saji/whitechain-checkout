@@ -4,16 +4,16 @@ import { mkdtempSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
-import { openDatabase } from '../src/db.mjs';
+import { openDatabase, reserveGas } from '../src/db.mjs';
 import { buildApi } from '../src/api.mjs';
 import { verifyWebhook } from '../src/crypto.mjs';
 const origin = 'http://127.0.0.1:4210';
-function fixture(fetcher) {
+function fixture(fetcher, config = {}) {
   const db = openDatabase(
     join(mkdtempSync(join(tmpdir(), 'checkout-onboarding-')), 'db.sqlite'),
   );
   const app = buildApi(
-    { appOrigin: origin, registrationEnabled: true, local: false },
+    { appOrigin: origin, registrationEnabled: true, local: false, ...config },
     db,
     { webhookFetcher: fetcher },
   );
@@ -64,6 +64,29 @@ test('registration binds wallet and business, rejects replay and requires a work
       cookie = result.headers['set-cookie'].split(';')[0];
     assert.equal(merchant.payout, owner.address);
     assert.equal(merchant.businessName, 'Test business');
+    const storedMerchant = db
+      .prepare('SELECT * FROM merchants WHERE id=?')
+      .get(merchant.id);
+    assert.equal(storedMerchant.daily_gas_budget, '10000000000000000');
+    // Reproduce the estimate that previously rejected a funded hosted payment.
+    const observedCap = 1672670732000000n;
+    reserveGas(db, { id: 'hosted-payment' }, storedMerchant, observedCap);
+    reserveGas(db, { id: 'hosted-refund' }, storedMerchant, observedCap);
+    assert.throws(
+      () =>
+        reserveGas(
+          db,
+          { id: 'over-budget' },
+          storedMerchant,
+          10000000000000000n,
+        ),
+      /MERCHANT_GAS_BUDGET/,
+    );
+    assert.equal(
+      db.prepare('SELECT COUNT(*) AS count FROM gas_reservations').get().count,
+      2,
+    );
+
     assert.equal(
       (await post('/v1/registration/verify', { id: challenge.id, signature }))
         .statusCode,
@@ -249,6 +272,33 @@ test('a failed or stale webhook check cannot activate an integration', async () 
       await new Promise((resolve) => setImmediate(resolve));
     finish({ status: 503 });
     assert.equal((await failed).json().webhookVerifiedAt, null);
+  } finally {
+    await app.close();
+    db.close();
+  }
+});
+
+test('registration preserves an explicit operator gas allowance', async () => {
+  const { db, app, post } = fixture(undefined, {
+    registrationDailyGasBudget: '123456789',
+  });
+  const owner = privateKeyToAccount(generatePrivateKey());
+  try {
+    const challenge = (
+      await post('/v1/registration/challenge', {
+        address: owner.address,
+        businessName: 'Custom allowance',
+      })
+    ).json();
+    const response = await post('/v1/registration/verify', {
+      id: challenge.id,
+      signature: await owner.signMessage({ message: challenge.message }),
+    });
+    assert.equal(response.statusCode, 200);
+    const merchant = db
+      .prepare('SELECT daily_gas_budget FROM merchants WHERE id=?')
+      .get(response.json().merchant.id);
+    assert.equal(merchant.daily_gas_budget, '123456789');
   } finally {
     await app.close();
     db.close();

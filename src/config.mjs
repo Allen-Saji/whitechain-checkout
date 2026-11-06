@@ -1,3 +1,4 @@
+import { DEFAULT_REGISTRATION_DAILY_GAS_BUDGET } from './gas-policy.mjs';
 import 'dotenv/config';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -106,7 +107,8 @@ export async function loadConfig() {
   )
     throw Error('INVALID_CONFIRMATIONS');
   const registrationDailyGasBudget =
-    process.env.REGISTRATION_DAILY_GAS_BUDGET ?? '1000000000000000';
+    process.env.REGISTRATION_DAILY_GAS_BUDGET ??
+    DEFAULT_REGISTRATION_DAILY_GAS_BUDGET;
   const globalDailyGasBudget =
     process.env.GLOBAL_DAILY_GAS_BUDGET ?? '50000000000000000';
   if (

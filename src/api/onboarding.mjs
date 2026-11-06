@@ -1,3 +1,4 @@
+import { DEFAULT_REGISTRATION_DAILY_GAS_BUDGET } from '../gas-policy.mjs';
 import { randomBytes, randomUUID } from 'node:crypto';
 import { verifyMessage } from 'viem';
 import { z } from 'zod';
@@ -137,7 +138,8 @@ export function registerOnboardingRoutes(
         hash(apiKey),
         '',
         webhookSecret,
-        config.registrationDailyGasBudget ?? '1000000000000000',
+        config.registrationDailyGasBudget ??
+          DEFAULT_REGISTRATION_DAILY_GAS_BUDGET,
       );
       db.prepare(
         'INSERT INTO merchant_profiles(merchant_id,business_name) VALUES(?,?)',
