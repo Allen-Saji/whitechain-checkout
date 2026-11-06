@@ -1,0 +1,12 @@
+{
+  "chainId": 1874,
+  "address": "0x43fbe3884038e34e811cf251ae00dfd5df826034",
+  "token": "0xcedfB56113143d55b2358b8CFbB0dEB5Ad2f55a7",
+  "relay": "0x95691c5101BcBb4Bd72a5f9aE1B61A20E9A12719",
+  "admin": "0x95691c5101BcBb4Bd72a5f9aE1B61A20E9A12719",
+  "blockNumber": "12369831",
+  "transactionHash": "0x8c5e90b3f1c2bf5791c9b325d14896a06534ef2e64464f3e1afbee7c301ce709",
+  "constructorArgs": "0x000000000000000000000000cedfb56113143d55b2358b8cfbb0deb5ad2f55a700000000000000000000000095691c5101bcbb4bd72a5f9ae1b61a20e9a12719",
+  "compilerVersion": "v0.8.28+commit.7893614a",
+  "explorer": "https://explorer.testnet.whitechain.io/address/0x43fbe3884038e34e811cf251ae00dfd5df826034"
+}
