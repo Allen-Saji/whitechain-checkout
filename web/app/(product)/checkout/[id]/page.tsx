@@ -1,3 +1,4 @@
+import { exampleShopEnabled } from '@/lib/deployment';
 import { Checkout } from '@/components/checkout';
 export const metadata = {
   title: 'Your order',
@@ -9,5 +10,5 @@ export default async function CheckoutPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  return <Checkout key={id} id={id} />;
+  return <Checkout key={id} id={id} showExample={exampleShopEnabled()} />;
 }

@@ -1,10 +1,16 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-export function ProductShell({ children }: { children: React.ReactNode }) {
+export function ProductShell({
+  children,
+  showExample,
+}: {
+  children: React.ReactNode;
+  showExample: boolean;
+}) {
   const pathname = usePathname();
   const links = [
-    ['/shop', 'Shop'],
+    ...(showExample ? [['/shop', 'Shop']] : []),
     ['/merchant', 'Merchant'],
     ['/start', 'Get started'],
     ['/docs', 'Docs'],

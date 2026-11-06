@@ -1,3 +1,4 @@
+import { exampleShopEnabled } from '@/lib/deployment';
 import { MerchantWorkspace } from '@/components/merchant';
 export const metadata = {
   title: 'Merchant workspace',
@@ -10,6 +11,10 @@ export default async function MerchantPage({
 }) {
   const { view } = await searchParams;
   return (
-    <MerchantWorkspace key={view ?? 'account'} preview={view === 'example'} />
+    <MerchantWorkspace
+      key={view ?? 'account'}
+      preview={view === 'example' && exampleShopEnabled()}
+      showExample={exampleShopEnabled()}
+    />
   );
 }

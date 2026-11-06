@@ -1,3 +1,4 @@
+import { exampleShopEnabled } from '@/lib/deployment';
 export const metadata = { title: 'Get started' };
 export default function SetupPage() {
   return (
@@ -79,9 +80,11 @@ export default function SetupPage() {
           <a className="button button-primary full-width" href="/merchant">
             Open workspace &#8599;
           </a>
-          <a className="text-link access-preview" href="/shop">
-            Explore checkout &#8599;
-          </a>
+          {exampleShopEnabled() ? (
+            <a className="text-link access-preview" href="/shop">
+              Explore checkout &#8599;
+            </a>
+          ) : null}
         </aside>
       </div>
     </>

@@ -15,7 +15,13 @@ import type { Authorization, Config, Receipt } from '@/lib/types';
 import { connectWallet, signAuthorization, tokenBalance } from '@/lib/wallet';
 import { ErrorNotice, PrintButton } from './ui';
 const paidStates = new Set(['paid', 'partially_refunded', 'refunded']);
-export function Checkout({ id }: { id: string }) {
+export function Checkout({
+  id,
+  showExample,
+}: {
+  id: string;
+  showExample: boolean;
+}) {
   const [config, setConfig] = useState<Config | null>(null),
     [order, setOrder] = useState<Receipt | null>(null);
   const [error, setError] = useState<string | null>(null),
@@ -120,8 +126,8 @@ export function Checkout({ id }: { id: string }) {
   return (
     <>
       <ErrorNotice message={error} />
-      <Link className="back-link" href="/shop">
-        &#8592; Back to shop
+      <Link className="back-link" href={showExample ? '/shop' : '/'}>
+        &#8592; {showExample ? 'Back to shop' : 'About checkout'}
       </Link>
       <div className="checkout-heading">
         <p className="app-kicker">WORKSHOP BOOKING</p>
@@ -281,8 +287,11 @@ export function Checkout({ id }: { id: string }) {
                   ? 'The payment window ended. Start a new order to continue.'
                   : explainCode(order.paymentJob?.error)}
               </p>
-              <Link className="button button-outline full-width" href="/shop">
-                Return to shop
+              <Link
+                className="button button-outline full-width"
+                href={showExample ? '/shop' : '/'}
+              >
+                Return
               </Link>
             </>
           ) : (

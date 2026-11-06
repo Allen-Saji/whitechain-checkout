@@ -27,7 +27,13 @@ const labels: Record<string, string> = {
 };
 const label = (s: string) => labels[s] ?? s;
 const confirmedStates = new Set(['paid', 'partially_refunded', 'refunded']);
-export function MerchantWorkspace({ preview }: { preview: boolean }) {
+export function MerchantWorkspace({
+  preview,
+  showExample,
+}: {
+  preview: boolean;
+  showExample: boolean;
+}) {
   const [data, setData] = useState<Workspace | null>(null),
     [config, setConfig] = useState<Config | null>(null),
     [loading, setLoading] = useState(true);
@@ -182,12 +188,14 @@ export function MerchantWorkspace({ preview }: { preview: boolean }) {
             <Link className="button button-outline full-width" href="/register">
               Create account &#8594;
             </Link>
-            <Link
-              className="text-link access-preview"
-              href="/merchant?view=example"
-            >
-              Explore a workspace preview &#8599;
-            </Link>
+            {showExample ? (
+              <Link
+                className="text-link access-preview"
+                href="/merchant?view=example"
+              >
+                Explore a workspace preview &#8599;
+              </Link>
+            ) : null}
           </aside>
         </section>
       </>
