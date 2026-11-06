@@ -211,3 +211,24 @@ export async function signIn() {
   }
   return api<Session>('/v1/session/verify', { id: challenge.id, signature });
 }
+
+export async function registerMerchant(businessName: string) {
+  const wallet = await connectWallet();
+  const challenge = await api<{ id: string; message: string }>(
+    '/v1/registration/challenge',
+    { address: wallet.address, businessName },
+  );
+  let signature;
+  try {
+    signature = await wallet.client.signMessage({
+      account: wallet.address,
+      message: challenge.message,
+    });
+  } catch (error) {
+    throw friendly(error);
+  }
+  return api<{
+    merchant: import('./types').MerchantSettings;
+    credentials: import('./types').MerchantCredentials;
+  }>('/v1/registration/verify', { id: challenge.id, signature });
+}

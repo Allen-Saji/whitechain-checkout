@@ -1,4 +1,21 @@
 const messages: Record<string, string> = {
+  REGISTRATION_DISABLED:
+    'New merchant registration is not enabled on this deployment yet.',
+  MERCHANT_ALREADY_REGISTERED:
+    'This payout wallet already has an account. Sign in to continue.',
+  INTEGRATION_NOT_READY:
+    'Connect and check your notification endpoint in merchant settings before creating a checkout.',
+  PUBLIC_HTTPS_WEBHOOK_REQUIRED:
+    'Use a public HTTPS notification URL on port 443, without credentials or a fragment.',
+  WEBHOOK_NOT_CONFIGURED:
+    'Save a notification endpoint before checking the connection.',
+  WEBHOOK_CHECK_COOLDOWN:
+    'Wait 30 seconds before checking the connection again.',
+  SETTINGS_CHANGED:
+    'Settings changed during the connection check. Check the current endpoint again.',
+  GLOBAL_GAS_BUDGET:
+    'The shared relay budget has been reached. Contact the operator before retrying.',
+
   RELAYER_PAUSED:
     'Payments are temporarily paused. No payment or refund was submitted.',
   SIGN_IN_REQUIRED: 'Connect your registered merchant wallet to continue.',

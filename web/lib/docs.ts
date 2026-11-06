@@ -68,7 +68,7 @@ export const pages: DocPage[] = [
     sections: [
       {
         title: '1. Prepare your account',
-        text: 'You need an operator-provisioned merchant, a payout wallet, an HTTPS webhook endpoint and the API key saved during provisioning. Merchant self-service signup is not available yet. The operator must configure CHECKOUT_BASE_URL so created orders include checkout URLs.',
+        text: 'Create an account at /register when registration is enabled. Sign with your payout wallet and save the API key and webhook secret shown once. Then add your HTTPS endpoint at /merchant/settings and send a connection check. The operator configures CHECKOUT_BASE_URL so orders include checkout URLs.',
         link: {
           href: '/docs/authentication',
           label: 'Account setup and authentication',
@@ -120,8 +120,9 @@ if (!order.checkoutUrl) {
       'Use API keys on your server and wallet sessions in the merchant workspace.',
     sections: [
       {
-        title: 'Register a merchant',
-        text: 'An operator runs the following from a configured service checkout. DB_PATH must point to the database used by the API. Replace the address and endpoint arguments with the merchant payout wallet and reviewed HTTPS webhook URL. The script checks the configured chain and deployment before registration.',
+        title: 'Create your account',
+        link: { href: '/register', label: 'Create merchant account' },
+        text: 'Use /register to choose a business name and sign a domain-bound registration message with your payout wallet. A single-use challenge expires after five minutes. Registration creates a session and shows server credentials once. For operator-managed provisioning, the CLI below remains available.',
         code: `DB_PATH=.local/service.sqlite node scripts/create-merchant.mjs \\
   YOUR_PUBLIC_PAYOUT_ADDRESS \\
   https://your-business.example/webhook`,
@@ -129,7 +130,7 @@ if (!order.checkoutUrl) {
       },
       {
         title: 'Credentials stay on the server',
-        text: 'The script generates a merchant ID, API key and webhook secret and saves them in .local/merchant-testnet.json with file mode 0600. It refuses to overwrite that file. Multi-merchant credential management and key rotation still need operator tooling. Never place these credentials in frontend environment variables.',
+        text: 'Browser registration displays the API key and webhook secret once; save them in your server secret store. Settings can replace either credential, immediately invalidating its previous value. Replacing the webhook secret requires another connection check. The operator CLI writes credentials to .local/merchant-testnet.json and refuses to overwrite an existing file. Never put credentials in frontend environment variables.',
         code: `Authorization: Bearer <merchant API key>`,
         language: 'HTTP',
       },
@@ -215,7 +216,7 @@ if (!valid) {
       },
       {
         title: 'Event fields',
-        text: 'Both payment.confirmed and refund.confirmed contain these fields. amount is the amount for this event, not the cumulative refund total.',
+        text: 'Both payment.confirmed and refund.confirmed contain these fields. The separate integration.check event contains id, type, merchantId and createdAt; verify its signature and return 2xx without fulfilling an order. amount is the amount for this event, not the cumulative refund total.',
         rows: [
           ['id', 'Stable event ID; use a unique constraint to deduplicate.'],
           ['type', 'payment.confirmed or refund.confirmed.'],
@@ -319,6 +320,36 @@ if (!valid) {
         ],
       },
       {
+        title: 'Account and integration endpoints',
+        text: 'Registration is enabled with MERCHANT_REGISTRATION_ENABLED=1. Settings and credential routes require the merchant wallet session; a bearer key alone cannot rotate credentials.',
+        rows: [
+          [
+            'POST /v1/registration/challenge',
+            '{address, businessName}; request an account registration message.',
+          ],
+          [
+            'POST /v1/registration/verify',
+            '{id, signature}; create the account and return one-time credentials.',
+          ],
+          [
+            'GET /v1/merchant/settings',
+            'Read profile and connection status; no secrets returned.',
+          ],
+          [
+            'POST /v1/merchant/settings',
+            '{businessName, webhookUrl}; save settings and reset verification.',
+          ],
+          [
+            'POST /v1/merchant/webhook/check',
+            '{}; send a signed integration.check event. Limited to once per 30 seconds.',
+          ],
+          [
+            'POST /v1/merchant/credentials/rotate',
+            '{credential: "apiKey" | "webhookSecret"}; replace and reveal a new credential once.',
+          ],
+        ],
+      },
+      {
         title: 'Buyer endpoints',
         rows: [
           ['GET /v1/config', 'Chain, token, router and relay availability.'],
@@ -381,7 +412,7 @@ if (!valid) {
           ],
           [
             'MERCHANT_NOT_REGISTERED',
-            'Ask the operator to provision the payout address.',
+            'Create an account with this wallet at /register, or sign in with an already registered payout wallet.',
           ],
           ['CHALLENGE_EXPIRED', 'Request and sign a new login challenge.'],
           [

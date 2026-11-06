@@ -1,6 +1,7 @@
 import type { Address, Hex, TypedData } from 'viem';
 export interface Config {
   relayEnabled: boolean;
+  registrationEnabled: boolean;
   chainId: number;
   token: Address;
   router: Address;
@@ -71,4 +72,20 @@ export interface Authorization {
     validBefore: string;
     nonce: Hex;
   };
+}
+
+export interface MerchantSettings {
+  id: string;
+  payout: Address;
+  businessName: string;
+  webhookUrl: string;
+  webhookVerifiedAt: number | null;
+  webhookCheckedAt: number | null;
+  webhookLastHttp: number | null;
+  webhookLastError: string | null;
+  dailyGasBudget: string;
+}
+export interface MerchantCredentials {
+  apiKey: string;
+  webhookSecret: string;
 }

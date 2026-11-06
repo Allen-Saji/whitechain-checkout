@@ -21,11 +21,11 @@ export default function SetupPage() {
             <h2>Choose where payments arrive.</h2>
             <p>
               Your payout wallet receives customer payments and signs refunds.
-              An operator registers this wallet and your HTTPS notification
-              endpoint before you can sign in.
+              Create your account with a wallet signature, then connect your
+              HTTPS notification endpoint in settings.
             </p>
-            <a className="text-link" href="/docs/authentication">
-              Merchant setup instructions &#8599;
+            <a className="text-link" href="/register">
+              Create merchant account &#8599;
             </a>
           </article>
           <article>

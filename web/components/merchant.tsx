@@ -179,8 +179,8 @@ export function MerchantWorkspace({ preview }: { preview: boolean }) {
             <div className="access-divider" />
             <h3>Connecting a new business?</h3>
             <p>Set up your payout wallet and payment notifications.</p>
-            <Link className="button button-outline full-width" href="/start">
-              Get started &#8594;
+            <Link className="button button-outline full-width" href="/register">
+              Create account &#8594;
             </Link>
             <Link
               className="text-link access-preview"
@@ -216,6 +216,11 @@ export function MerchantWorkspace({ preview }: { preview: boolean }) {
             attention.
           </p>
         </div>
+        {!data.readOnly ? (
+          <Link className="text-link" href="/merchant/settings">
+            Integration settings &#8599;
+          </Link>
+        ) : null}
         <button
           className="button button-outline"
           disabled={busy}
@@ -321,7 +326,7 @@ export function MerchantWorkspace({ preview }: { preview: boolean }) {
               Connect your server and create a checkout to receive your first
               order.
             </p>
-            <Link className="text-link" href="/start">
+            <Link className="text-link" href="/merchant/settings">
               Connect your integration &#8599;
             </Link>
           </div>

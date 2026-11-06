@@ -994,3 +994,71 @@
     justify-content: flex-end;
   }
 }
+
+.settings-form label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  margin: 24px 0 10px;
+}
+.settings-form input:not([type='checkbox']) {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: transparent;
+  font: inherit;
+  color: var(--ink);
+}
+.settings-form input:focus-visible {
+  outline: 2px solid var(--orange);
+  outline-offset: 3px;
+}
+.settings-form input[readonly] {
+  color: var(--muted);
+  font-size: 13px;
+}
+.settings-form > p,
+.settings-section > p {
+  color: var(--muted);
+  line-height: 1.7;
+  margin: 16px 0;
+}
+.settings-form .fine-print {
+  margin: 14px 0 24px;
+}
+.settings-section {
+  border-top: 1px solid var(--line);
+  padding-top: 28px;
+  margin-top: 32px;
+}
+.settings-section h3 {
+  margin-bottom: 14px;
+}
+.credential-field {
+  overflow-wrap: anywhere;
+  margin-top: 24px;
+}
+.credential-field input {
+  font-family: monospace !important;
+}
+.credential-actions {
+  display: flex;
+  gap: 24px;
+}
+.credential-actions button {
+  min-height: 44px;
+}
+.settings-form .confirm-check {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  line-height: 1.5;
+}
+.confirm-check input {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--orange);
+}
