@@ -145,8 +145,18 @@ export function registerCheckoutRoutes(
     };
   });
   app.post('/v1/checkouts/:id/authorization', async (req) => {
+    requireThat(config.relayEnabled !== false, 503, 'RELAYER_PAUSED');
     available();
     const c = checkout(req.params.id);
+    requireThat(
+      relayScopeAllows(config, {
+        checkoutId: c.id,
+        kind: 'pay',
+        amount: c.amount,
+      }),
+      503,
+      'RELAY_SCOPE_RESTRICTED',
+    );
     const { payer } = z.object({ payer: address }).strict().parse(req.body);
     requireThat(
       c.state === 'created' && c.expires_at > Math.floor(Date.now() / 1000),
