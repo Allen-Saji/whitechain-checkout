@@ -1,0 +1,13 @@
+{
+  "name": "RelayCheckout",
+  "compiler_version": "v0.8.28+commit.7893614a",
+  "verified_at": "2026-11-06T19:49:51.533267Z",
+  "is_fully_verified": true,
+  "is_partially_verified": false,
+  "is_changed_bytecode": false,
+  "file_path": "RelayCheckout.sol",
+  "evm_version": "paris",
+  "optimization_enabled": true,
+  "address": "0x43fbe3884038e34e811cf251ae00dfd5df826034",
+  "explorer": "https://explorer.testnet.whitechain.io/address/0x43fbe3884038e34e811cf251ae00dfd5df826034?tab=contract"
+}

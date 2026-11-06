@@ -26,7 +26,7 @@ Use the existing container if one is already running. Fork tests check that the 
 
 `deployments/whitechain-sepolia/compiler-input.json` preserves the exact source used for the recorded deployment. The readable contract source was subsequently formatted; source formatting changes compiler metadata. `node scripts/check-deployment.mjs` compiles the preserved input and verifies exact creation calldata and constructor arguments against the successful deployment transaction. This check is independent of explorer source verification.
 
-`node scripts/verify-testnet.mjs` submits that preserved input to the explorer. An accepted verification request still needs an explorer result before the deployment can be described as verified. At the recorded run, the explorer returned 403 with verification temporarily unavailable.
+`node scripts/verify-testnet.mjs` submits that preserved input to the explorer. An accepted verification request still needs an explorer result before the deployment can be described as verified. The explorer initially returned 403 with verification temporarily unavailable. Retrying on November 7, 2026 succeeded; the deployed contract now has exact-match source verification.
 
 ## Live payment and refund smoke test
 
