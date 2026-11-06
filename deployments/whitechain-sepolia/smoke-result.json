@@ -1,0 +1,40 @@
+{
+  "network": "Whitechain Sepolia",
+  "chainId": 1874,
+  "token": "0xcedfB56113143d55b2358b8CFbB0dEB5Ad2f55a7",
+  "router": "0x43fbe3884038e34e811cf251ae00dfd5df826034",
+  "buyer": "0x0E2f67B094306C1a54BA8353027d2A97C4a9F5ea",
+  "merchant": "0xc87432AC54946511DA46842755653834a2CDD53B",
+  "receipt": {
+    "id": "273fe90c-b292-4732-887b-7f83bc420d2b",
+    "orderId": "live-workshop-001",
+    "amount": "2000000",
+    "merchant": "0xc87432AC54946511DA46842755653834a2CDD53B",
+    "buyer": "0x0E2f67B094306C1a54BA8353027d2A97C4a9F5ea",
+    "state": "partially_refunded",
+    "refunded": "500000",
+    "fulfillment": "fulfilled",
+    "expiresAt": 1793970568,
+    "chainId": 1874,
+    "token": "0xcedfB56113143d55b2358b8CFbB0dEB5Ad2f55a7",
+    "timeline": [
+      {
+        "type": "Paid",
+        "transactionHash": "0x7803084d3483a045a5c752c39560067a245ef7ec6f929200922dd54439ea17fc",
+        "blockNumber": 12373306
+      },
+      {
+        "type": "Refunded",
+        "transactionHash": "0x5ac212bf80be6863c040b6a4742783aaef72be952b0fb9042a9cbc5e4057e8cf",
+        "blockNumber": 12373316
+      }
+    ]
+  },
+  "buyerWbt": "0",
+  "merchantWbt": "0",
+  "buyerUsdt": "1",
+  "merchantUsdt": "1.5",
+  "routerUsdt": "0",
+  "fundingTransaction": "0x438f8cd6a044ab3e7c582511ab662e18649a036510a595bd5c7afd5dfe9fc115",
+  "checkedAt": "2026-11-06T12:54:47.819Z"
+}
