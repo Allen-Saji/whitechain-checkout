@@ -121,3 +121,35 @@ test('merchant isolation, immutable pricing, fail-closed chain review and public
     db.close();
   }
 });
+
+test('a shared gas cap prevents additional merchants bypassing the deployment budget', () => {
+  const db = openDatabase(
+    join(mkdtempSync(join(tmpdir(), 'checkout-global-budget-')), 'db.sqlite'),
+  );
+  try {
+    const first = { id: 'first', checkout_id: 'a' },
+      second = { id: 'second', checkout_id: 'b' };
+    reserveGas(
+      db,
+      first,
+      { id: 'merchant-a', daily_gas_budget: '100' },
+      60n,
+      Date.now(),
+      100n,
+    );
+    assert.throws(
+      () =>
+        reserveGas(
+          db,
+          second,
+          { id: 'merchant-b', daily_gas_budget: '100' },
+          60n,
+          Date.now(),
+          100n,
+        ),
+      /GLOBAL_GAS_BUDGET/,
+    );
+  } finally {
+    db.close();
+  }
+});

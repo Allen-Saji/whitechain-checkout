@@ -118,7 +118,14 @@ export function createRelay(config, db, owns) {
       return;
     }
     try {
-      reserveGas(db, job, merchant, cap);
+      reserveGas(
+        db,
+        job,
+        merchant,
+        cap,
+        Date.now(),
+        config.globalDailyGasBudget ?? null,
+      );
     } catch (e) {
       if (e.message === 'MERCHANT_GAS_BUDGET') {
         fail(job, e.message);

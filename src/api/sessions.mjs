@@ -30,6 +30,23 @@ export function sessionMerchant(req, config, db) {
     )
     .get(hash(token), Date.now());
 }
+export function issueSession(db, req, reply, origin, merchantId) {
+  const token = randomBytes(32).toString('hex');
+  const old = sessionToken(req);
+  if (old)
+    db.prepare('DELETE FROM merchant_sessions WHERE token_hash=?').run(
+      hash(old),
+    );
+  db.prepare('INSERT INTO merchant_sessions VALUES(?,?,?)').run(
+    hash(token),
+    merchantId,
+    Date.now() + SESSION_SECONDS * 1000,
+  );
+  reply.header(
+    'set-cookie',
+    `${COOKIE}=${token}; Path=/; HttpOnly; SameSite=Strict; Max-Age=${SESSION_SECONDS}${origin.startsWith('https:') ? '; Secure' : ''}`,
+  );
+}
 export function registerSessionRoutes(app, config, db) {
   const origin = config.appOrigin ?? 'http://127.0.0.1:4210';
   const cookie = (token, maxAge) =>
@@ -76,7 +93,6 @@ export function registerSessionRoutes(app, config, db) {
       /* Malformed signatures are authentication failures. */
     }
     requireThat(valid, 401, 'INVALID_SIGNATURE');
-    const token = randomBytes(32).toString('hex');
     const merchant = transaction(db, () => {
       const changed = db
         .prepare(
@@ -90,19 +106,9 @@ export function registerSessionRoutes(app, config, db) {
         )
         .get(challenge.address);
       requireThat(m, 403, 'MERCHANT_NOT_REGISTERED');
-      const old = sessionToken(req);
-      if (old)
-        db.prepare('DELETE FROM merchant_sessions WHERE token_hash=?').run(
-          hash(old),
-        );
-      db.prepare('INSERT INTO merchant_sessions VALUES(?,?,?)').run(
-        hash(token),
-        m.id,
-        Date.now() + SESSION_SECONDS * 1000,
-      );
+      issueSession(db, req, reply, origin, m.id);
       return m;
     });
-    reply.header('set-cookie', cookie(token, SESSION_SECONDS));
     return {
       merchant: { id: merchant.id, payout: merchant.payout },
       expiresIn: SESSION_SECONDS,

@@ -11,7 +11,7 @@ export function openDatabase(path) {
     );
     transaction(db, () => {
       const version = db.prepare('PRAGMA user_version').get().user_version;
-      if (version > 2) throw Error('DATABASE_VERSION_TOO_NEW');
+      if (version > 3) throw Error('DATABASE_VERSION_TOO_NEW');
       if (version === 0) {
         db.exec(
           readFileSync(
@@ -33,6 +33,18 @@ export function openDatabase(path) {
         );
         db.exec('PRAGMA user_version=2');
       }
+      if (version < 3) {
+        db.exec(
+          readFileSync(
+            new URL(
+              './storage/migrations/003-merchant-onboarding.sql',
+              import.meta.url,
+            ),
+            'utf8',
+          ),
+        );
+        db.exec('PRAGMA user_version=3');
+      }
     });
   } catch (error) {
     db.close();
@@ -51,7 +63,14 @@ export function transaction(db, fn) {
     throw error;
   }
 }
-export function reserveGas(db, job, merchant, cost, now = Date.now()) {
+export function reserveGas(
+  db,
+  job,
+  merchant,
+  cost,
+  now = Date.now(),
+  globalBudget = null,
+) {
   return transaction(db, () => {
     const prior = db
       .prepare('SELECT * FROM gas_reservations WHERE job_id=?')
@@ -64,6 +83,15 @@ export function reserveGas(db, job, merchant, cost, now = Date.now()) {
       )
       .all(merchant.id, day)
       .reduce((sum, row) => sum + BigInt(row.amount), 0n);
+    if (globalBudget !== null) {
+      const globalUsed = db
+        .prepare('SELECT amount FROM gas_reservations WHERE day=?')
+        .all(day)
+        .reduce((sum, row) => sum + BigInt(row.amount), 0n);
+      const replace = prior?.day === day ? BigInt(prior.amount) : 0n;
+      if (globalUsed - replace + cost > BigInt(globalBudget))
+        throw Error('GLOBAL_GAS_BUDGET');
+    }
     const priorToday = prior?.day === day ? BigInt(prior.amount) : 0n;
     if (used - priorToday + cost > BigInt(merchant.daily_gas_budget))
       throw Error('MERCHANT_GAS_BUDGET');

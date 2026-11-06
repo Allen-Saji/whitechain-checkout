@@ -1,3 +1,4 @@
+import { registerOnboardingRoutes } from './api/onboarding.mjs';
 import { registerSessionRoutes } from './api/sessions.mjs';
 import { registerDemoRoutes } from './api/demo.mjs';
 import { REQUIRED_TOKEN } from './protocol.mjs';
@@ -7,7 +8,7 @@ import { createApiContext } from './api/context.mjs';
 import { registerCheckoutRoutes } from './api/checkouts.mjs';
 import { registerMerchantRoutes } from './api/merchant.mjs';
 import { registerRefundRoutes } from './api/refunds.mjs';
-export function buildApi(config, db) {
+export function buildApi(config, db, options = {}) {
   const app = Fastify({ logger: false, bodyLimit: 16000 });
   app.addHook('onSend', async (req, reply, payload) => {
     reply.header('cache-control', 'no-store');
@@ -54,6 +55,7 @@ export function buildApi(config, db) {
   }));
   app.get('/v1/config', async () => ({
     relayEnabled: config.relayEnabled !== false,
+    registrationEnabled: config.registrationEnabled === true,
     chainId: 1874,
     token: REQUIRED_TOKEN,
     tokenName: config.tokenName ?? 'Tether USD',
@@ -65,6 +67,7 @@ export function buildApi(config, db) {
     appOrigin: config.appOrigin,
   }));
   registerSessionRoutes(app, config, db);
+  registerOnboardingRoutes(app, config, db, options);
   registerDemoRoutes(app, config, db);
   const context = createApiContext(db, config);
   registerCheckoutRoutes(app, config, db, context);

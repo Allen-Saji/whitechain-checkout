@@ -19,12 +19,12 @@ test('database startup preserves existing merchant data and records the schema v
     '100',
   );
   db.exec(
-    'DROP TABLE merchant_sessions; DROP TABLE auth_challenges; PRAGMA user_version=0',
+    'DROP TABLE merchant_profiles; DROP TABLE registration_challenges; DROP TABLE merchant_sessions; DROP TABLE auth_challenges; PRAGMA user_version=0',
   );
   db.close();
   db = openDatabase(path);
   try {
-    assert.equal(db.prepare('PRAGMA user_version').get().user_version, 2);
+    assert.equal(db.prepare('PRAGMA user_version').get().user_version, 3);
     assert.equal(
       db.prepare('SELECT COUNT(*) AS count FROM merchants').get().count,
       1,
@@ -39,7 +39,7 @@ test('older service refuses a database migrated by newer code', () => {
       'service.sqlite',
     ),
     db = openDatabase(path);
-  db.exec('PRAGMA user_version=3');
+  db.exec('PRAGMA user_version=4');
   db.close();
   assert.throws(() => openDatabase(path), /DATABASE_VERSION_TOO_NEW/);
 });

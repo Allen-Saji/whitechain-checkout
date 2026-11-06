@@ -17,11 +17,13 @@
     "build:web": "next build web",
     "preview:web": "next start web --hostname 127.0.0.1 --port 4210",
     "demo": "node scripts/start-demo.mjs",
-    "typecheck:web": "tsc --project web/tsconfig.json --noEmit"
+    "typecheck:web": "tsc --project web/tsconfig.json --noEmit",
+    "start:backend": "node src/runtime.mjs"
   },
   "dependencies": {
     "dotenv": "16.6.1",
     "fastify": "5.12.8",
+    "ipaddr.js": "2.5.0",
     "next": "16.4.5",
     "react": "19.3.1",
     "react-dom": "19.3.1",

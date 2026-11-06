@@ -49,6 +49,16 @@ export function registerCheckoutRoutes(
     );
   app.post('/v1/checkouts', async (req, reply) => {
     const m = merchant(req);
+    const profile = db
+      .prepare(
+        'SELECT webhook_verified_at FROM merchant_profiles WHERE merchant_id=?',
+      )
+      .get(m.id);
+    requireThat(
+      !profile || profile.webhook_verified_at,
+      409,
+      'INTEGRATION_NOT_READY',
+    );
     available();
     const input = z
       .object({

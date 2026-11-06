@@ -1,9 +1,19 @@
+import { createWebhookFetcher } from './http/webhook.mjs';
 import { randomUUID } from 'node:crypto';
 import { transaction } from './db.mjs';
 import { createRelay } from './workers/relay.mjs';
 import { createIndexer } from './workers/indexer.mjs';
 import { createOutbox } from './workers/outbox.mjs';
-export function createWorker(config, db, { fetcher = fetch } = {}) {
+export function createWorker(
+  config,
+  db,
+  {
+    fetcher = createWebhookFetcher({
+      local: config.local,
+      trustedLoopbackOrigin: config.webhookLoopbackOrigin,
+    }),
+  } = {},
+) {
   const owner = randomUUID();
   const owns = () =>
     db

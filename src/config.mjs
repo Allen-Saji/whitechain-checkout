@@ -12,16 +12,21 @@ import { privateKeyToAccount } from 'viem/accounts';
 import { REQUIRED_TOKEN } from './protocol.mjs';
 export async function loadConfig() {
   const local = process.env.LOCAL_FORK === '1';
-  const deployment = JSON.parse(
-    readFileSync(
-      local ? '.local/fork-deployment.json' : '.local/testnet-deployment.json',
-    ),
-  );
-  const key = JSON.parse(
-    readFileSync(
-      local ? '.local/fork-wallet.json' : '.local/testnet-wallet.json',
-    ),
-  );
+  const deploymentPath =
+    process.env.DEPLOYMENT_PATH ??
+    (local
+      ? '.local/fork-deployment.json'
+      : process.env.RELAY_PRIVATE_KEY
+        ? 'deployments/whitechain-sepolia/deployment.json'
+        : '.local/testnet-deployment.json');
+  const deployment = JSON.parse(readFileSync(deploymentPath));
+  const key = process.env.RELAY_PRIVATE_KEY
+    ? { privateKey: process.env.RELAY_PRIVATE_KEY }
+    : JSON.parse(
+        readFileSync(
+          local ? '.local/fork-wallet.json' : '.local/testnet-wallet.json',
+        ),
+      );
   const rpc = local
     ? 'http://127.0.0.1:8550'
     : 'https://rpc.testnet.whitechain.io';
@@ -100,8 +105,22 @@ export async function loadConfig() {
     confirmations > 100
   )
     throw Error('INVALID_CONFIRMATIONS');
+  const registrationDailyGasBudget =
+    process.env.REGISTRATION_DAILY_GAS_BUDGET ?? '1000000000000000';
+  const globalDailyGasBudget =
+    process.env.GLOBAL_DAILY_GAS_BUDGET ?? '50000000000000000';
+  if (
+    ![registrationDailyGasBudget, globalDailyGasBudget].every((value) =>
+      /^[0-9]+$/.test(value),
+    )
+  )
+    throw Error('INVALID_GAS_BUDGET');
   return {
     local,
+    registrationEnabled: process.env.MERCHANT_REGISTRATION_ENABLED === '1',
+    registrationDailyGasBudget,
+    globalDailyGasBudget,
+    webhookLoopbackOrigin: process.env.WEBHOOK_LOOPBACK_ORIGIN,
     relayEnabled: process.env.DEMO_WORKER !== '0',
     appOrigin: new URL(process.env.APP_ORIGIN ?? 'http://127.0.0.1:4210')
       .origin,
@@ -121,6 +140,7 @@ export async function loadConfig() {
         (local ? '.local/fork.sqlite' : '.local/service.sqlite'),
     ),
     port: Number(process.env.PORT ?? 4200),
+    host: process.env.HOST ?? '127.0.0.1',
     checkoutBaseUrl: process.env.CHECKOUT_BASE_URL,
     maxGasPerJob: 10000000000000000n,
   };
