@@ -1,0 +1,32 @@
+{
+  "verifiedAt": "2026-11-06T18:10:06.406Z",
+  "frontend": "https://checkout.allensaji.dev",
+  "receiptUrl": "https://checkout.allensaji.dev/checkout/78a479c2-a147-46ef-bdfb-367680eb1aaa",
+  "chainId": 1874,
+  "token": "0xcedfB56113143d55b2358b8CFbB0dEB5Ad2f55a7",
+  "merchant": "0xB03CbD002a037Cef1dFB33d3c956452f0B4081F0",
+  "buyer": "0x0E2f67B094306C1a54BA8353027d2A97C4a9F5ea",
+  "checkoutId": "78a479c2-a147-46ef-bdfb-367680eb1aaa",
+  "amount": "100000",
+  "refunded": "50000",
+  "state": "partially_refunded",
+  "fulfillment": "fulfilled",
+  "transactions": [
+    {
+      "type": "Paid",
+      "hash": "0x7dcd8f77bfa66dc13ffcf6c537bc044f5666b8980cc0b4c37dd4f46df9cda49a",
+      "blockNumber": 12392106,
+      "status": "success",
+      "gasUsed": "180210",
+      "effectiveGasPrice": "5001000000"
+    },
+    {
+      "type": "Refunded",
+      "hash": "0x33f2589ad108f0365fcdb52dfc8e95b3babd837abe599cd5a61fc4b7601fbb85",
+      "blockNumber": 12392182,
+      "status": "success",
+      "gasUsed": "162109",
+      "effectiveGasPrice": "5001000000"
+    }
+  ]
+}
