@@ -13,15 +13,17 @@ Development and preview bind to `http://127.0.0.1:4210`. `/v1` proxies to API po
 ## Routes
 
 - `/`: marketing page, integration example, evidence links and illustrative recovery walkthrough. The primary CTA opens the real demo shop.
-- `/demo`: server-priced test workshop purchase. A stable browser order ID prevents duplicate creation on retry.
+- `/shop`: server-priced example workshop purchase (`/demo` remains a compatibility route). A stable browser order ID prevents duplicate creation on retry.
 - `/checkout/:id`: wallet selection, Whitechain network selection, bounded token authorization, payment status, fulfillment status, refunds and printable receipt.
-- `/merchant`: wallet sign-in, merchant-scoped orders, delivery history/retry and signed partial refunds. An explicitly configured public demo is read-only until the registered merchant signs in.
+- `/merchant`: wallet sign-in, merchant-scoped orders, delivery history/retry and signed partial refunds. Public example activity is only shown when the visitor explicitly opens `/merchant?view=example`.
+- `/start`: merchant setup overview.
+- `/docs` and `/docs/:guide`: developer guides, API reference, searchable navigation, copyable code and PDF printing.
 
 The checkout distinguishes a queued request, confirmed payment and acknowledged fulfillment. Buyers sign token authorizations; the relayer pays transaction gas. The merchant API key stays in the booking server. Connecting a buyer wallet does not grant merchant access.
 
 ## Hosting
 
-Serve `web/dist/index.html` for `/`, and `web/dist/product.html` for `/demo`, `/merchant` and `/checkout/*`. Serve generated assets normally. Configure same-origin reverse proxies for `/v1/*` and `/shop-api/*`; a static fallback alone cannot operate checkout. Set `APP_ORIGIN` to the exact HTTPS application origin and `CHECKOUT_BASE_URL` to that origin plus `/checkout`. Vite's development proxy is not a production server.
+Serve `web/dist/index.html` for `/`, and `web/dist/product.html` for `/shop`, `/demo`, `/merchant`, `/start`, `/docs`, `/docs/*` and `/checkout/*`. Serve generated assets normally. Configure same-origin reverse proxies for `/v1/*` and `/shop-api/*`; a static fallback alone cannot operate checkout. Set `APP_ORIGIN` to the exact HTTPS application origin and `CHECKOUT_BASE_URL` to that origin plus `/checkout`. Vite's development proxy is not a production server.
 
 ## Design and accessibility
 
