@@ -1,6 +1,6 @@
 <p align="center"><img src="web/public/mark.svg" width="64" height="64" alt="Checkout logo" /></p>
 <h1 align="center">Checkout</h1>
-<p align="center">USDT payments. Orders accounted for.</p>
+<p align="center">USDT checkout and payment management.</p>
 <p align="center"><a href="https://checkout.allensaji.dev">Live app</a> | <a href="https://checkout.allensaji.dev/docs">Developer docs</a> | <a href="docs/getting-started.md">Get started</a> | <a href="docs/integration.md">Integration</a> | <a href="docs/architecture.md">Architecture</a> | <a href="CONTRIBUTING.md">Contribute</a></p>
 
 Checkout connects a USDT payment to the order behind it. Customers authorize a payment, the relayer covers gas, and merchants receive funds directly. Confirmed payments create durable receipts and signed notifications; merchants can retry delivery and authorize partial refunds from their workspace.
@@ -17,6 +17,10 @@ Checkout connects a USDT payment to the order behind it. Customers authorize a p
 ## Stack
 
 Next.js App Router, React and TypeScript for the frontend. Fastify, viem and SQLite for the API and worker. Solidity for payment accounting.
+
+## Integrate with the hosted service
+
+[Create a merchant account](https://checkout.allensaji.dev/register), save your server credentials, and connect a signed webhook receiver. Follow the [quickstart](https://checkout.allensaji.dev/docs/quickstart) to create a payment link through the hosted API without installing an SDK.
 
 ## Run locally
 
@@ -83,9 +87,19 @@ Set `CHECKOUT_BASE_URL` on the API to enable checkout URLs. Verify webhook signa
 
 The recorded deployment is Whitechain Sepolia, chain 1874, using USDT at `0xcedfB56113143d55b2358b8CFbB0dEB5Ad2f55a7`. Public evidence includes a [2 USDT payment and 0.5 USDT refund](deployments/whitechain-sepolia/smoke-result.json), plus a [MetaMask checkout and partial refund](deployments/whitechain-sepolia/browser-checkout-result.json). A separate [hosted payment and wallet-signed browser refund](deployments/whitechain-sepolia/hosted-checkout-result.json) verified the deployed merchant integration and fulfillment.
 
+## Settlement evidence
+
+- [Verified checkout contract](https://explorer.testnet.whitechain.io/address/0x43fbe3884038e34e811cf251ae00dfd5df826034?tab=contract)
+- [Hosted 0.10 USDT payment](https://explorer.testnet.whitechain.io/tx/0x7dcd8f77bfa66dc13ffcf6c537bc044f5666b8980cc0b4c37dd4f46df9cda49a)
+- [Merchant-authorized 0.05 USDT refund](https://explorer.testnet.whitechain.io/tx/0x33f2589ad108f0365fcdb52dfc8e95b3babd837abe599cd5a61fc4b7601fbb85)
+- [Customer receipt](https://checkout.allensaji.dev/checkout/78a479c2-a147-46ef-bdfb-367680eb1aaa)
+- [Whitechain integration feedback](WHITECHAIN_FEEDBACK.md)
+
+Whitechain USDT settlement lets an existing token holder pay a merchant wallet directly, with order-bound payment and refund accounting independently inspectable onchain. EIP-3009 authorizations let our relayer pay WBT gas without taking custody of the customer's funds. A conventional card rail can support checkout and refunds, but does not settle this USDT into the merchant's Whitechain wallet or expose the same contract-enforced receipt for other onchain software to inspect. The integration currently targets Whitechain Sepolia; it does not claim these primitives are exclusive to Whitechain.
+
 ## Deployment and security
 
-This deployment uses test assets. The frontend, API and independent example merchant are publicly hosted. Mainnet deployment and independent security review are not complete. The relayer can be paused by the operator; check `/v1/config` for current availability. Explorer source verification is pending. The current system uses single-host SQLite; automatic reorg rollback and transaction fee replacement are not implemented.
+This deployment uses test assets. The frontend, API and independent example merchant are publicly hosted. Mainnet deployment and independent security review are not complete. The relayer can be paused by the operator; check `/v1/config` for current availability. The deployed contract has [exact-match source verification](https://explorer.testnet.whitechain.io/address/0x43fbe3884038e34e811cf251ae00dfd5df826034?tab=contract). The current system uses single-host SQLite; automatic reorg rollback and transaction fee replacement are not implemented.
 
 Payment goes directly to the merchant. Refunds require the merchant's authorization and available funds; Checkout does not provide escrow or guarantee refunds. Browser authentication supports EOA wallets. Wallet-signed registration is available when enabled by the operator. New accounts must configure and check their webhook before creating checkouts.
 

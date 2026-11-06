@@ -1,6 +1,6 @@
-# Get started
+# Run Checkout locally
 
-The browser documentation is served at `/docs` by the web application. This guide covers repository setup; the [integration guide](integration.md) covers server calls.
+This guide is for contributors and teams hosting the Checkout backend. To add payments to an existing app using the hosted service, follow the [merchant quickstart](https://checkout.allensaji.dev/docs/quickstart). You do not need to run these services to integrate the hosted API.
 
 ## Install and verify
 

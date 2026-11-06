@@ -21,14 +21,14 @@ export const pages: DocPage[] = [
     title: 'Build payments into your product',
     label: 'Introduction',
     description:
-      'Accept USDT, track fulfillment, and recover the handoff between a payment and an order.',
+      'Add hosted USDT payments to your app, then track orders and refunds from your workspace.',
     sections: [
       {
-        title: 'One payment, a complete record',
+        title: 'How a payment works',
         text: 'Your server creates an order with a fixed price. The customer signs a token authorization, and the relayer pays gas to settle USDT directly to your payout wallet. Confirmed chain events create a receipt and a signed notification for your server.',
       },
       {
-        title: 'Keep fulfillment separate',
+        title: 'Payment and fulfillment',
         text: 'Payment confirmation means funds have moved. Fulfillment means your application completed the order. A successful webhook response stops delivery retries; your server separately acknowledges fulfillment. This distinction makes a paid but undelivered order visible.',
       },
       {
@@ -56,6 +56,14 @@ export const pages: DocPage[] = [
         title: 'Current network',
         text: 'The configured deployment is Whitechain Sepolia, chain 1874, using USDT at 0xcedfB56113143d55b2358b8CFbB0dEB5Ad2f55a7 (six decimals). Use test assets for this deployment. Mainnet deployment, ERC-1271 contract wallets and embedded wallet onboarding are not implemented.',
       },
+      {
+        title: 'Start with a payment link',
+        text: 'Create an account, connect your webhook and call the hosted API. You do not need to run the Checkout backend.',
+        link: {
+          href: '/docs/quickstart',
+          label: 'Follow the quickstart',
+        },
+      },
     ],
   },
   {
@@ -67,47 +75,46 @@ export const pages: DocPage[] = [
       'Connect your server, set an amount, and send a customer to checkout.',
     sections: [
       {
-        title: '1. Prepare your account',
-        text: 'Create an account at /register when registration is enabled. Sign with your payout wallet and save the API key and webhook secret shown once. Then add your HTTPS endpoint at /merchant/settings and send a connection check. The operator configures CHECKOUT_BASE_URL so orders include checkout URLs.',
+        title: '1. Create your merchant account',
+        text: 'Choose a business name and connect the wallet that will receive payments. Sign the registration message, then save your API key and webhook signing secret in your server environment. Signing in does not move funds.',
         link: {
-          href: '/docs/authentication',
-          label: 'Account setup and authentication',
+          href: '/register',
+          label: 'Create account',
         },
       },
       {
-        title: '2. Use the server SDK',
-        text: 'The SDK ships in this repository at sdk/server.mjs; it is not published as an npm package. The import below assumes your integration file is at the repository root. Set CHECKOUT_API to your API origin and CHECKOUT_API_KEY to your merchant credential.',
-        code: `import { checkoutClient } from './sdk/server.mjs';
-
-const checkout = checkoutClient({
-  baseUrl: process.env.CHECKOUT_API,
-  apiKey: process.env.CHECKOUT_API_KEY,
-});
-
-const order = await checkout.create({
-  orderId: 'booking-1042',
-  amount: '2000000', // 2 USDT, six decimals
-});
-
-if (!order.checkoutUrl) {
-  throw new Error('Configure CHECKOUT_BASE_URL on the API');
-}
-// Redirect your customer to order.checkoutUrl.`,
-        language: 'JavaScript',
-      },
-      {
-        title: '3. Receive confirmation',
-        text: 'Verify the webhook signature against the exact raw request body. Persist the event and business operation idempotently before responding successfully. Then acknowledge fulfillment using the checkout UUID, not your external order ID.',
-        code: `await checkout.fulfill(checkoutId, 'fulfilled');`,
-        language: 'JavaScript',
+        title: '2. Connect your webhook',
+        text: 'Add a public HTTPS route to your app that verifies Checkout signatures. It must accept integration.check events with a 2xx response without creating an order. Save its URL in Integration settings, then select Send connection check. Checkout creation becomes available after the check passes.',
         link: {
           href: '/docs/webhooks',
-          label: 'Implement payment notifications',
+          label: 'Build your webhook receiver',
         },
       },
       {
-        title: '4. Verify the result',
-        text: 'Open the receipt URL and confirm both payment and fulfillment. The merchant workspace shows delivery attempts and transaction history. A queued API response is not payment confirmation. Use a separate buyer wallet from the merchant payout wallet.',
+        title: '3. Create a payment link',
+        text: 'Run this request from your server or terminal with CHECKOUT_API_KEY set to your merchant API key. The hosted API is available at https://checkout.allensaji.dev. Amounts use six decimals: 100000 means 0.10 USDT. No SDK installation is needed for this request.',
+        language: 'Shell',
+        code: 'curl --fail-with-body https://checkout.allensaji.dev/v1/checkouts \\\n  -H "Authorization: Bearer $CHECKOUT_API_KEY" \\\n  -H "Content-Type: application/json" \\\n  --data \'{"orderId":"workshop-001","title":"Studio workshop","amount":"100000"}\'',
+      },
+      {
+        title: '4. Open the checkout',
+        text: 'Open checkoutUrl from the response. Use a buyer wallet different from your payout wallet, with the required USDT on Whitechain Sepolia. Connect the wallet and authorize the displayed amount. Checkout covers the network fee. If payment processing is paused, you can inspect the checkout but cannot complete a new payment.',
+      },
+      {
+        title: '5. Complete the order',
+        text: 'Your receiver gets payment.confirmed after settlement. Match the event to the order you stored, complete the purchase once, then acknowledge fulfillment using checkoutId from the event. Return 2xx only after saving the event or completing durable processing. A timeout is not proof that payment failed.',
+        link: {
+          href: '/docs/webhooks',
+          label: 'Handle confirmation and fulfillment',
+        },
+      },
+      {
+        title: 'Use the TypeScript SDK',
+        text: 'The SDK wraps the same API and includes webhook verification. Install it from the source package, then use it in your server app.',
+        link: {
+          href: '/docs/agents',
+          label: 'SDK installation and coding-agent guide',
+        },
       },
     ],
   },
@@ -121,26 +128,37 @@ if (!order.checkoutUrl) {
     sections: [
       {
         title: 'Create your account',
-        link: { href: '/register', label: 'Create merchant account' },
-        text: 'Use /register to choose a business name and sign a domain-bound registration message with your payout wallet. A single-use challenge expires after five minutes. Registration creates a session and shows server credentials once. For operator-managed provisioning, the CLI below remains available.',
-        code: `DB_PATH=.local/service.sqlite node scripts/create-merchant.mjs \\
-  YOUR_PUBLIC_PAYOUT_ADDRESS \\
-  https://your-business.example/webhook`,
-        language: 'Shell',
+        text: 'Enter your business name and connect your payout wallet. Sign the registration message to create your account. Save the API key and webhook signing secret when they appear; you cannot reveal them again later.',
+        link: {
+          href: '/register',
+          label: 'Create merchant account',
+        },
       },
       {
-        title: 'Credentials stay on the server',
-        text: 'Browser registration displays the API key and webhook secret once; save them in your server secret store. Settings can replace either credential, immediately invalidating its previous value. Replacing the webhook secret requires another connection check. The operator CLI writes credentials to .local/merchant-testnet.json and refuses to overwrite an existing file. Never put credentials in frontend environment variables.',
-        code: `Authorization: Bearer <merchant API key>`,
+        title: 'Sign in to your workspace',
+        text: 'Use the same payout wallet to sign in. Your session lasts seven days unless you sign out. The sign-in message expires after five minutes if you have not signed it; this is not the session duration. Sign-in does not authorize payments or refunds.',
+        link: {
+          href: '/merchant',
+          label: 'Open workspace',
+        },
+      },
+      {
+        title: 'Authenticate server requests',
+        text: 'Send your API key in the Authorization header. Keep it in your server environment, never in client-side JavaScript or a NEXT_PUBLIC variable. Use the separate webhook secret to verify incoming notifications.',
         language: 'HTTP',
+        code: 'Authorization: Bearer <merchant API key>',
       },
       {
-        title: 'Sign in with your payout wallet',
-        text: 'Open /merchant and connect the registered payout wallet. The application requests a five-minute, single-use challenge and verifies the wallet signature. A successful login creates a seven-day HttpOnly, SameSite=Strict cookie, marked Secure over HTTPS. Logout revokes it. Login does not authorize a payment or refund.',
+        title: 'Replace a lost credential',
+        text: 'Open Integration settings to replace an API key or webhook secret. The previous value stops working immediately. Update your server configuration with the new value. After changing the webhook secret, run the connection check again.',
+        link: {
+          href: '/merchant/settings',
+          label: 'Open integration settings',
+        },
       },
       {
-        title: 'Origin and access rules',
-        text: 'Cookie-authenticated mutations require an Origin header matching APP_ORIGIN exactly. Server integrations use bearer credentials. Orders, deliveries and refunds are scoped to the authenticated merchant. An unregistered wallet receives MERCHANT_NOT_REGISTERED; connecting a wallet alone does not create a merchant account.',
+        title: 'Wallet sessions and account access',
+        text: 'The browser uses an HttpOnly session cookie. Requests that change account settings must come from the configured Checkout origin. API keys access only their merchant account; credential rotation requires a signed-in wallet session.',
       },
     ],
   },
@@ -155,16 +173,12 @@ if (!order.checkoutUrl) {
       {
         title: 'Create an order',
         text: 'POST /v1/checkouts requires merchant authentication. orderId is a non-empty string of at most 120 characters. amount is a positive integer string in token base units. expiresIn is optional, defaults to 900 seconds and must be between 60 and 3600.',
-        code: `{
-  "orderId": "booking-1042",
-  "amount": "2000000",
-  "expiresIn": 900
-}`,
+        code: '{\n  "orderId": "workshop-001",\n  "title": "Studio workshop",\n  "description": "One workshop booking",\n  "amount": "100000",\n  "expiresIn": 900\n}',
         language: 'JSON',
       },
       {
         title: 'Retries and immutable pricing',
-        text: 'Reusing an orderId for the same merchant returns the existing checkout when its amount matches. A different amount returns a conflict. Keep the original ID when a request times out; creating a fresh ID could create another order. Prices belong on your server, never in a trusted browser field.',
+        text: 'Reusing an orderId for the same merchant returns the existing checkout only when its amount, title and description match. Changed terms return a conflict. Reuse the original ID after a request timeout. Derive prices from your server-side product data; do not trust an amount supplied by the browser.',
       },
       {
         title: 'Authorize and submit',
@@ -199,20 +213,22 @@ if (!order.checkoutUrl) {
       'Verify events, deduplicate work, and recover delivery after an outage.',
     sections: [
       {
+        title: 'Before the connection check',
+        text: 'Create a public HTTPS POST endpoint on your own server. Read the raw request body and verify the signature with your webhook secret. For integration.check, return 200 after verification; do not create or fulfill an order. Save this endpoint in Integration settings, then send the check.',
+        link: {
+          href: '/merchant/settings',
+          label: 'Configure webhook URL',
+        },
+      },
+      {
         title: 'Verify the raw body',
         text: 'Notifications include x-checkout-timestamp and x-checkout-signature headers. The signature is hex HMAC-SHA256 over timestamp + "." + rawBody. The SDK rejects timestamps outside a five-minute window. Verify before JSON parsing or business processing. Do not stringify a parsed object to reconstruct the body.',
-        code: `import { verifyWebhook } from './sdk/server.mjs';
-
-const valid = verifyWebhook(
-  process.env.CHECKOUT_WEBHOOK_SECRET,
-  timestampHeader,
-  rawBody,
-  signatureHeader,
-);
-if (!valid) {
-  // Respond with 401 before processing the event.
-}`,
+        code: "import { verifyWebhook } from '@whitechain-checkout/server';\n\nconst valid = verifyWebhook(\n  process.env.CHECKOUT_WEBHOOK_SECRET,\n  timestampHeader,\n  rawBody,\n  signatureHeader,\n);\nif (!valid) {\n  // Respond with 401 before processing the event.\n}",
         language: 'JavaScript',
+        link: {
+          href: '/docs/agents',
+          label: 'Install the SDK for signature verification',
+        },
       },
       {
         title: 'Event fields',
@@ -248,13 +264,17 @@ if (!valid) {
     description: 'Return funds with merchant consent and a verifiable receipt.',
     sections: [
       {
+        title: 'Issue a refund from your workspace',
+        text: 'Open an order and select Review refunds. Check the available amount, enter the amount to return, then select Review in wallet. Sign with your registered payout wallet. The receipt updates after confirmation. Your wallet must hold enough USDT to cover the refund.',
+        link: {
+          href: '/merchant',
+          label: 'Open orders',
+        },
+      },
+      {
         title: 'Reserve the amount',
         text: 'Use a stable refundId for each refund. The server checks confirmed refunds and pending reservations against the original payment. Reusing that ID with another amount returns REFUND_CONFLICT.',
-        code: `const refund = await checkout.refund({
-  checkoutId,
-  refundId: 'return-1042-1',
-  amount: '500000', // 0.5 USDT
-});`,
+        code: "const refund = await checkout.refund({\n  checkoutId,\n  refundId: 'return-1042-1',\n  amount: '500000', // 0.5 USDT\n});",
         language: 'JavaScript',
       },
       {
@@ -267,8 +287,7 @@ if (!valid) {
       },
       {
         title: 'Submit and confirm',
-        code: `await checkout.submitRefund(refund.id, signature);
-// Poll GET /v1/checkouts/:id for the confirmed refund.`,
+        code: 'await checkout.submitRefund(refund.id, signature);\n// Poll GET /v1/checkouts/:id for the confirmed refund.',
         language: 'JavaScript',
         text: 'The signature comes from the merchant wallet. A queued response does not mean funds have returned. Wait for the Refunded receipt event or refund.confirmed notification. The merchant needs sufficient USDT; the relayer pays gas.',
       },
@@ -280,7 +299,7 @@ if (!valid) {
   },
   {
     slug: 'agents',
-    group: 'Integrate',
+    group: 'Integration',
     title: 'Integrate with your coding agent',
     label: 'Agents and SDK',
     description:
@@ -290,12 +309,21 @@ if (!valid) {
         title: 'Install from source',
         text: 'The SDK is packaged with TypeScript declarations and no runtime dependencies. It is not published to the npm registry. Clone the repository, pack sdk/, and install that tarball in your server application.',
         language: 'sh',
-        code: 'git clone https://github.com/Allen-Saji/whitechain-checkout.git\ncd whitechain-checkout\nnpm pack ./sdk\n# In your app: npm install /path/to/whitechain-checkout-server-0.1.0.tgz',
+        code: 'git clone https://github.com/Allen-Saji/whitechain-checkout.git\ncd whitechain-checkout\nnpm pack ./sdk\n\n# From your application directory, install the generated file:\nnpm install /absolute/path/to/whitechain-checkout/whitechain-checkout-server-0.1.0.tgz',
+      },
+      {
+        title: 'Create a checkout from your server',
+        text: 'Set CHECKOUT_API to https://checkout.allensaji.dev and CHECKOUT_API_KEY to the key saved during registration. Use your own stored order reference and server-side price.',
+        language: 'TypeScript',
+        code: "import { checkoutClient } from '@whitechain-checkout/server';\n\nconst checkout = checkoutClient({\n  baseUrl: process.env.CHECKOUT_API!,\n  apiKey: process.env.CHECKOUT_API_KEY!,\n});\n\nconst order = await checkout.create({\n  orderId: 'workshop-001',\n  title: 'Studio workshop',\n  amount: '100000', // 0.10 USDT\n});\n// Send order.checkoutUrl to your customer.",
       },
       {
         title: 'Give your agent the integration skill',
-        text: 'Read the skill, then ask your coding agent to integrate Checkout into your existing app. It preserves your stack, keeps credentials server-side, derives prices from your product data and verifies fulfillment behavior.',
-        link: { href: '/skill.md', label: 'Read the integration skill' },
+        text: 'Give your coding agent the integration skill and review its changes. The guide covers server-side credentials, prices from your product database, signature checks and fulfillment tests.',
+        link: {
+          href: '/skill.md',
+          label: 'Read the integration skill',
+        },
       },
       {
         title: 'A concrete task to give your agent',
@@ -323,7 +351,6 @@ if (!valid) {
       },
     ],
   },
-
   {
     slug: 'api',
     group: 'Reference',
@@ -367,7 +394,7 @@ if (!valid) {
       },
       {
         title: 'Account and integration endpoints',
-        text: 'Registration is enabled with MERCHANT_REGISTRATION_ENABLED=1. Settings and credential routes require the merchant wallet session; a bearer key alone cannot rotate credentials.',
+        text: 'Use the registration page to create an account. Settings and credential routes require the merchant wallet session; an API key alone cannot rotate credentials.',
         rows: [
           [
             'POST /v1/registration/challenge',
@@ -431,13 +458,12 @@ if (!valid) {
       {
         title: 'Error format',
         text: 'Validation errors return INVALID_INPUT. Requests are limited to 120 per minute per IP in each API process; a 429 response includes Retry-After. Limits are not shared across processes.',
-        code: `{
-  "error": {
-    "code": "INVALID_INPUT"
-  }
-}`,
+        code: '{\n  "error": {\n    "code": "INVALID_INPUT"\n  }\n}',
         language: 'JSON',
-        link: { href: '/docs/errors', label: 'Error handling and recovery' },
+        link: {
+          href: '/docs/errors',
+          label: 'Error handling and recovery',
+        },
       },
     ],
   },
@@ -500,12 +526,36 @@ if (!valid) {
           ],
         ],
       },
+    ],
+  },
+  {
+    slug: 'self-hosting',
+    group: 'Operations',
+    title: 'Run your own Checkout deployment',
+    label: 'Self-hosting',
+    description:
+      'For teams operating the API, worker and frontend. Merchants using the hosted service can follow the quickstart.',
+    sections: [
       {
-        title: 'Operator responsibilities',
-        text: 'Run the API, worker and merchant receiver against the intended database and deployment. Monitor relayer WBT, failed notifications, stalled jobs and checkpoint health. Stuck transactions currently need manual investigation; automatic fee replacement and reorg rollback are not implemented.',
+        title: 'Service setup',
+        text: 'Run the API and worker against the same database and deployment. Configure APP_ORIGIN and CHECKOUT_BASE_URL for your frontend. Your separate merchant application stores its own API key and webhook secret.',
+        link: {
+          href: 'https://github.com/Allen-Saji/whitechain-checkout/blob/main/docs/getting-started.md',
+          label: 'Repository setup guide',
+        },
+      },
+      {
+        title: 'Provision a merchant from the CLI',
+        text: 'Run this only from your configured backend checkout, with DB_PATH pointing to the API database. The command requires deployment configuration and writes credentials to .local/merchant-testnet.json. It refuses to overwrite an existing file. Hosted merchants should register in the browser instead.',
+        language: 'Shell',
+        code: 'DB_PATH=.local/service.sqlite node scripts/create-merchant.mjs \\\n  YOUR_PUBLIC_PAYOUT_ADDRESS \\\n  https://your-business.example/webhook',
+      },
+      {
+        title: 'Monitor processing',
+        text: 'Monitor relayer WBT, gas budgets, failed notifications, stalled jobs and chain checkpoints. A paused worker stops payment/refund submission and notification processing. Automatic fee replacement and reorg rollback are not implemented.',
         link: {
           href: 'https://github.com/Allen-Saji/whitechain-checkout/blob/main/docs/operations.md',
-          label: 'Operations and deployment guide',
+          label: 'Operations guide',
         },
       },
     ],

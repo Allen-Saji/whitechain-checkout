@@ -1,4 +1,6 @@
-# Integration guide
+# Add Checkout to your app
+
+Start by [creating an account](https://checkout.allensaji.dev/register), saving your API key and webhook secret, and verifying your HTTPS webhook in [Integration settings](https://checkout.allensaji.dev/merchant/settings). The hosted API base URL is `https://checkout.allensaji.dev`. You do not need access to the Checkout database.
 
 All amounts are positive integer strings in token base units (USDT has six decimals). Merchant endpoints require `Authorization: Bearer <merchant API key>`. Keep this key on your server.
 
@@ -13,7 +15,7 @@ The server SDK exposes `create`, `fulfill`, `refund`, and `submitRefund`. The se
 
 Webhook headers are `x-checkout-timestamp` (Unix seconds) and `x-checkout-signature` (hex HMAC-SHA256 of `timestamp + "." + rawBody`). The verifier permits five minutes of clock skew. Delivery retries use the same event ID and fresh signature. Successful 2xx responses stop automatic delivery retries. Merchant delivery history and explicit replay are available at `/v1/merchant/deliveries` and `/v1/merchant/deliveries/:id/retry`.
 
-Refund flow: request authorization at `POST /v1/merchant/orders/:id/refunds` with `{refundId, amount}`; have the merchant payout wallet sign the returned authorization; submit the signature to `POST /v1/merchant/refunds/:id/submit`. A refund request is not a completed refund. Poll confirmed order history. Pending refund reservations count against the original paid amount; unsigned expired reservations are released by the worker.
+Refund flow: request authorization at `POST /v1/merchant/orders/:id/refunds` with `{refundId, amount}`; have the merchant payout wallet sign the returned authorization; submit the signature to `POST /v1/merchant/refunds/:id/submit`. A refund request is not a completed refund. Poll confirmed order history. Pending refund reservations count against the original paid amount; expired unsigned reservations stop reducing the available amount, including while processing is paused.
 
 ## Install in another application
 
