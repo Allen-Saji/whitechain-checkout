@@ -1,4 +1,6 @@
 const messages: Record<string, string> = {
+  RELAY_SCOPE_RESTRICTED:
+    'Payment processing is currently limited to a selected checkout. No transaction was submitted.',
   REGISTRATION_DISABLED:
     'New merchant registration is not enabled on this deployment yet.',
   MERCHANT_ALREADY_REGISTERED:

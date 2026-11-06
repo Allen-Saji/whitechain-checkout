@@ -115,8 +115,19 @@ export async function loadConfig() {
     )
   )
     throw Error('INVALID_GAS_BUDGET');
+  const relayCheckoutId = process.env.RELAY_CHECKOUT_ID;
+  const relayMaxPaymentAmount = process.env.RELAY_MAX_PAYMENT_AMOUNT;
+  const relayMaxRefundAmount = process.env.RELAY_MAX_REFUND_AMOUNT;
+  if (relayCheckoutId && !/^[a-f0-9-]{36}$/i.test(relayCheckoutId))
+    throw Error('INVALID_RELAY_SCOPE');
+  for (const limit of [relayMaxPaymentAmount, relayMaxRefundAmount])
+    if (limit && !/^[1-9][0-9]*$/.test(limit))
+      throw Error('INVALID_RELAY_SCOPE');
   return {
     local,
+    relayCheckoutId,
+    relayMaxPaymentAmount,
+    relayMaxRefundAmount,
     registrationEnabled: process.env.MERCHANT_REGISTRATION_ENABLED === '1',
     registrationDailyGasBudget,
     globalDailyGasBudget,

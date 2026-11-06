@@ -1,3 +1,4 @@
+import { relayScopeAllows } from '../relay-scope.mjs';
 import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import { transaction } from '../db.mjs';
@@ -131,6 +132,15 @@ export function registerCheckoutRoutes(
     requireThat(config.relayEnabled !== false, 503, 'RELAYER_PAUSED');
     available();
     const c = checkout(req.params.id);
+    requireThat(
+      relayScopeAllows(config, {
+        checkoutId: c.id,
+        kind: 'pay',
+        amount: c.amount,
+      }),
+      503,
+      'RELAY_SCOPE_RESTRICTED',
+    );
     const input = z
       .object({
         payer: address,

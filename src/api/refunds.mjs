@@ -1,3 +1,4 @@
+import { relayScopeAllows } from '../relay-scope.mjs';
 import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import { transaction } from '../db.mjs';
@@ -83,6 +84,15 @@ export function registerRefundRoutes(
     const r = db.prepare('SELECT * FROM refunds WHERE id=?').get(req.params.id);
     requireThat(r, 404, 'NOT_FOUND');
     const c = checkout(r.checkout_id);
+    requireThat(
+      relayScopeAllows(config, {
+        checkoutId: c.id,
+        kind: 'refund',
+        amount: r.amount,
+      }),
+      503,
+      'RELAY_SCOPE_RESTRICTED',
+    );
     requireThat(c.merchant_id === m.id, 404, 'NOT_FOUND');
     const { signature } = z
       .object({ signature: z.string().regex(/^0x[0-9a-fA-F]{130}$/) })

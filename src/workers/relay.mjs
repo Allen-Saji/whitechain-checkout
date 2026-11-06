@@ -1,3 +1,4 @@
+import { relayScopeAllows } from '../relay-scope.mjs';
 import { createWalletClient, http, encodeFunctionData, keccak256 } from 'viem';
 import { transaction, reserveGas } from '../db.mjs';
 import { onchainId } from '../protocol.mjs';
@@ -32,6 +33,14 @@ export function createRelay(config, db, owns) {
       )
       .get();
     if (job) {
+      if (
+        !relayScopeAllows(config, {
+          checkoutId: job.checkout_id,
+          kind: job.kind,
+          amount: job.amount,
+        })
+      )
+        throw Error('RELAY_SCOPE_RESTRICTED');
       let receipt;
       try {
         receipt = await client.getTransactionReceipt({ hash: job.tx_hash });
@@ -68,6 +77,14 @@ export function createRelay(config, db, owns) {
       )
       .get();
     if (!job) return;
+    if (
+      !relayScopeAllows(config, {
+        checkoutId: job.checkout_id,
+        kind: job.kind,
+        amount: job.amount,
+      })
+    )
+      throw Error('RELAY_SCOPE_RESTRICTED');
     if (job.deadline <= Math.floor(Date.now() / 1000)) {
       fail(job, 'AUTHORIZATION_EXPIRED');
       return;
