@@ -101,8 +101,6 @@ export default function Landing() {
               </p>
               <p className="receipt-caption">Payment receipt</p>
             </div>
-            <span className="scene-label scene-label-left">Payment</span>
-            <span className="scene-label scene-label-right">Order</span>
           </div>
           <div className="hero-bottom wrap">
             <span>PAYMENT RECEIPTS. ORDER RECOVERY. REFUNDS.</span>
@@ -486,13 +484,6 @@ export default function Landing() {
         </a>
         <span className="footer-network">Built on Whitechain</span>
       </footer>
-      <button
-        className="pdf-btn no-print"
-        id="download-pdf"
-        aria-label="Download page as PDF"
-      >
-        Download PDF
-      </button>
 
       <LandingInteractions />
     </>

@@ -45,7 +45,7 @@ Next build output under `web/.next/` is ignored. The old `web/dist/` output is n
 
 ## Design and verification
 
-The orange sculpture is decorative. DM Sans and Instrument Serif are bundled locally with their licenses; no remote font request is required. Print controls use native browser printing. Motion respects reduced-motion preferences, and layouts adapt to phone widths.
+The orange sculpture is decorative. DM Sans and Instrument Serif are bundled locally with their licenses; no remote font request is required. Only payment receipts offer a print control. The landing page and documentation have no PDF-download button. Motion respects reduced-motion preferences, and layouts adapt to phone widths.
 
 `pnpm check` includes TypeScript checking, lint, contract compilation, offline tests and the production Next.js build. Public testnet evidence predates the framework migration. Browser checks of the migrated routes use existing receipts and do not imply another payment was submitted. Registered merchant wallet sign-in/refund remains an outstanding end-to-end check.
 

@@ -357,23 +357,7 @@ h3 {
   color: #796b60;
   margin-top: 17px;
 }
-.scene-label {
-  position: absolute;
-  top: 68%;
-  font-family:
-    Instrument Serif,
-    serif;
-  font-style: italic;
-  font-size: 22px;
-  color: var(--ink);
-}
-.scene-label-left {
-  left: 14%;
-}
-.scene-label-right {
-  right: 14%;
-  top: 35%;
-}
+
 .hero-bottom {
   padding: 20px 0 28px;
   display: flex;
@@ -849,23 +833,7 @@ h3 {
 .footer-network {
   font-size: 10px;
 }
-.pdf-btn {
-  position: fixed;
-  right: 16px;
-  bottom: 16px;
-  z-index: 20;
-  padding: 11px 16px;
-  min-height: 44px;
-  border: 1px solid #ded5ca;
-  border-radius: 99px;
-  font:
-    400 11px DM Sans,
-    sans-serif;
-  color: var(--ink);
-  background: #fcfaf7ee;
-  box-shadow: 0 3px 16px #3920130a;
-  cursor: pointer;
-}
+
 .will-reveal {
   opacity: 0;
   transform: translateY(22px);
@@ -1088,17 +1056,7 @@ h3 {
   .receipt-caption {
     font-size: 11px;
   }
-  .scene-label {
-    font-size: 16px;
-    top: 75%;
-  }
-  .scene-label-left {
-    left: 21%;
-  }
-  .scene-label-right {
-    right: 20%;
-    top: 28%;
-  }
+
   .hero-bottom {
     font-size: 7px;
     letter-spacing: 0.06em;
@@ -1273,9 +1231,7 @@ h3 {
   .footer-network {
     display: none;
   }
-  .pdf-btn {
-    font-size: 11px;
-  }
+
   .will-reveal {
     transform: translateY(14px);
   }
@@ -1299,9 +1255,7 @@ h3 {
   .hero-receipt {
     width: 200px;
   }
-  .scene-label {
-    display: none;
-  }
+
   .hero-bottom > span:first-child {
     max-width: 130px;
   }
@@ -1342,7 +1296,6 @@ h3 {
   .mobile-nav,
   .menu-toggle,
   .hero-actions,
-  .pdf-btn,
   #advance-demo,
   .code-header button {
     display: none !important;
@@ -1373,9 +1326,7 @@ h3 {
   .hero-receipt {
     background: #fff !important;
   }
-  .scene-label {
-    display: none;
-  }
+
   .section {
     padding-block: 35px;
   }

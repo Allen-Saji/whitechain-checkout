@@ -156,11 +156,6 @@ export function LandingInteractions() {
       },
       options,
     );
-    get('#download-pdf').addEventListener(
-      'click',
-      () => window.print(),
-      options,
-    );
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
     let observer: IntersectionObserver | undefined;
     if ('IntersectionObserver' in window && !reduced.matches) {

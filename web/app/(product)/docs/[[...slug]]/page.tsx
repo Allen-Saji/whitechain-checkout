@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { pages } from '@/lib/docs';
 import { DocsSidebar } from '@/components/docs-sidebar';
-import { CopyButton, PrintButton } from '@/components/ui';
+import { CopyButton } from '@/components/ui';
 import '../../../../styles/docs.css';
 type Props = { params: Promise<{ slug?: string[] }> };
 function getPage(slug?: string[]) {
@@ -93,7 +93,6 @@ export default async function DocsPage({ params }: Props) {
             {section.title}
           </a>
         ))}
-        <PrintButton className="text-link" />
       </nav>
     </div>
   );

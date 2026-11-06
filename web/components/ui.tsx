@@ -8,7 +8,7 @@ export function ErrorNotice({ message }: { message: string | null }) {
 }
 export function PrintButton({
   className = 'button button-outline',
-  children = 'Download PDF',
+  children = 'Print receipt',
 }: {
   className?: string;
   children?: React.ReactNode;
