@@ -67,4 +67,4 @@ For an isolated fork, also set `LOCAL_FORK=1` and use that fork's deployment, re
 
 `DEMO_MERCHANT_ID` opts that merchant into public read-only demo data. Omit it from a private production deployment. Merchant sessions last seven days; the signature challenge lasts five minutes. Use the registered payout wallet to sign in at `/merchant`; refund execution requires another token authorization and sufficient USDT. A canceled refund signature can leave an unsigned reservation until its 15-minute deadline and worker cleanup.
 
-Public hosting must implement the static routes and same-origin API proxies described in [browser application](landing.md). Configure the production origin before login; origin checks deliberately reject mismatches.
+Public hosting runs the Next.js application server and its same-origin API rewrites described in [frontend deployment](landing.md). Configure the production origin before login; origin checks deliberately reject mismatches.

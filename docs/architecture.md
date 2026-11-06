@@ -52,3 +52,7 @@ Merchant sign-in verifies an EOA signature over a domain-bound message with a si
 The payout address must already belong to an operator-provisioned merchant. Signing in does not create a merchant. The public `/v1/demo` endpoint is disabled unless `DEMO_MERCHANT_ID` explicitly selects a demo merchant whose order and delivery data may be public. Keep customer information out of that fixture.
 
 `DEMO_WORKER=0` prevents payment/refund submission and worker cycles. This is an application pause, separate from the onchain payment pause, and also suspends indexing and notification retries.
+
+## Frontend boundary
+
+Next.js serves public pages and documentation with the App Router. TypeScript client components handle wallet access, checkout state and merchant operations. The Next server proxies existing API paths to Fastify; it does not duplicate payment accounting or hold merchant keys in browser state. API responses are typed in web/lib/types.ts, and wallet authorizations are checked against the expected chain, token, router, account and amount before signing.

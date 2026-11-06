@@ -1,36 +1,50 @@
-# Browser application
+# Frontend
 
-The site lives in `web/`. The marketing page uses HTML, CSS and small JavaScript modules. Product routes load separate application modules and viem for wallet interaction. Fonts and artwork are bundled locally.
+The application uses Next.js App Router, React and strict TypeScript. The landing and documentation are prerendered. Wallet actions, order polling, merchant operations and interactive controls run in client components. Fastify and the payment worker remain separate services.
 
 ```sh
 pnpm dev:web
+pnpm typecheck:web
 pnpm build:web
 pnpm preview:web
 ```
 
-Development and preview bind to `http://127.0.0.1:4210`. `/v1` proxies to API port 4200; `/shop-api` proxies to the separate booking service on port 4301. See [operations](operations.md) for service configuration. Build output is ignored under `web/dist/`; builds do not delete previous output automatically.
+Development and production preview bind to `http://127.0.0.1:4210`. `pnpm preview:web` runs the production Next.js server and requires a successful build. Keep the API and booking services running separately for payment and merchant pages.
 
 ## Routes
 
-- `/`: marketing page, integration example, evidence links and illustrative recovery walkthrough. The primary CTA opens the real demo shop.
-- `/shop`: server-priced example workshop purchase (`/demo` remains a compatibility route). A stable browser order ID prevents duplicate creation on retry.
-- `/checkout/:id`: wallet selection, Whitechain network selection, bounded token authorization, payment status, fulfillment status, refunds and printable receipt.
-- `/merchant`: wallet sign-in, merchant-scoped orders, delivery history/retry and signed partial refunds. Public example activity is only shown when the visitor explicitly opens `/merchant?view=example`.
-- `/start`: merchant setup overview.
-- `/docs` and `/docs/:guide`: developer guides, API reference, searchable navigation, copyable code and PDF printing.
+| Route                      | Purpose                                              |
+| -------------------------- | ---------------------------------------------------- |
+| `/`                        | Product landing and recovery walkthrough             |
+| `/shop`                    | Server-priced example workshop checkout              |
+| `/demo`                    | Compatibility redirect to `/shop`                    |
+| `/checkout/:id`            | Buyer authorization, status and printable receipt    |
+| `/merchant`                | Wallet sign-in and authenticated merchant operations |
+| `/merchant?view=example`   | Explicit read-only example account                   |
+| `/start`                   | Merchant setup overview                              |
+| `/docs` and `/docs/:guide` | Developer guides and API reference                   |
 
-The checkout distinguishes a queued request, confirmed payment and acknowledged fulfillment. Buyers sign token authorizations; the relayer pays transaction gas. The merchant API key stays in the booking server. Connecting a buyer wallet does not grant merchant access.
+## Source layout
 
-## Hosting
+- `web/app/`: routes, layouts, metadata, loading and error boundaries.
+- `web/components/`: typed React UI and interaction components.
+- `web/lib/`: API types/client, wallet adapter and documentation content.
+- `web/styles/`: shared design styles, product styles and docs styles.
+- `web/public/`: fonts, font licenses, icons and generated decorative artwork.
+- `web/legacy/`: preserved pre-migration Vite source. Not served or imported by Next.js; do not add features there.
 
-Serve `web/dist/index.html` for `/`, and `web/dist/product.html` for `/shop`, `/demo`, `/merchant`, `/start`, `/docs`, `/docs/*` and `/checkout/*`. Serve generated assets normally. Configure same-origin reverse proxies for `/v1/*` and `/shop-api/*`; a static fallback alone cannot operate checkout. Set `APP_ORIGIN` to the exact HTTPS application origin and `CHECKOUT_BASE_URL` to that origin plus `/checkout`. Vite's development proxy is not a production server.
+The wallet adapter initializes provider discovery in the browser when needed. UI polling stops on unmount and pauses when the page is hidden. Merchant API keys never enter the frontend.
 
-## Design and accessibility
+## Deployment
 
-The orange sculpture is decorative; the receipt overlay is HTML. DM Sans and Instrument Serif are bundled with their licenses. `checkout.` remains a provisional wordmark.
+Run Next.js as an application server, not a static file host. Next rewrites `/v1/*` to `CHECKOUT_API_ORIGIN` (default `http://127.0.0.1:4200`) and `/shop-api/*` to `CHECKOUT_MERCHANT_ORIGIN` (default `http://127.0.0.1:4301`). Configure these server-only origins before building and running the deployment. The booking proxy is for the bundled example; disable or isolate it for deployments without that example.
 
-The landing walkthrough supports arrow keys, Home and End. Mobile navigation supports Escape, FAQs use native disclosures, and motion respects reduced-motion preferences. Native printing exports a static view. Product pages expose payment progress and errors as status messages; the merchant table scrolls inside its container on phones.
+Set `APP_ORIGIN` on Fastify to the exact external HTTPS frontend origin and `CHECKOUT_BASE_URL` to that origin plus `/checkout`. Preserve request Origin headers and session cookies through the proxy. Never set merchant credentials or relay keys in NEXT_PUBLIC variables.
 
-## Verification scope
+Next build output under `web/.next/` is ignored. The old `web/dist/` output is no longer served. See [operations](operations.md) for backend and worker deployment requirements.
 
-`pnpm check` covers formatting, lint, contract compilation, offline tests and the production build. Browser checks covered desktop and phone layouts and a real MetaMask buyer authorization on Whitechain Sepolia. A merchant-signed HTTP API refund was confirmed and displayed in the receipt. The registered merchant's browser sign-in/refund flow has not yet been exercised end to end. These checks are not an accessibility audit or a cross-browser certification.
+## Design and verification
+
+The orange sculpture is decorative. DM Sans and Instrument Serif are bundled locally with their licenses; no remote font request is required. Print controls use native browser printing. Motion respects reduced-motion preferences, and layouts adapt to phone widths.
+
+`pnpm check` includes TypeScript checking, lint, contract compilation, offline tests and the production Next.js build. Public testnet evidence predates the framework migration. Browser checks of the migrated routes use existing receipts and do not imply another payment was submitted. Registered merchant wallet sign-in/refund remains an outstanding end-to-end check.

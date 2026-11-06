@@ -14,6 +14,10 @@ Checkout connects a USDT payment to the order behind it. Customers authorize a p
 - Solidity payment router with order-bound authorizations and cumulative refund limits.
 - In-app developer documentation with copyable examples at `/docs`.
 
+## Stack
+
+Next.js App Router, React and TypeScript for the frontend. Fastify, viem and SQLite for the API and worker. Solidity for payment accounting.
+
 ## Run locally
 
 Requires Node 22.13+ in the 22.x line or Node 24+, and pnpm 10.8.1.
@@ -72,7 +76,7 @@ Set `CHECKOUT_BASE_URL` on the API to enable checkout URLs. Verify webhook signa
 
 ## Verification
 
-`pnpm check` runs formatting, lint, Solidity compilation, offline tests and the web build. `pnpm test:fork` runs the full suite against an isolated Anvil fork, including process recovery, merchant isolation, wallet sessions, notification replay and partial refunds. See [operations](docs/operations.md) for fork setup. CI runs on pull requests and manual dispatch.
+`pnpm check` runs formatting, lint, strict frontend type checking, Solidity compilation, offline tests and the Next.js production build. `pnpm test:fork` runs the full suite against an isolated Anvil fork, including process recovery, merchant isolation, wallet sessions, notification replay and partial refunds. See [operations](docs/operations.md) for fork setup. CI runs on pull requests and manual dispatch.
 
 The recorded deployment is Whitechain Sepolia, chain 1874, using USDT at `0xcedfB56113143d55b2358b8CFbB0dEB5Ad2f55a7`. Public evidence includes a [2 USDT payment and 0.5 USDT refund](deployments/whitechain-sepolia/smoke-result.json), plus a [MetaMask checkout and partial refund](deployments/whitechain-sepolia/browser-checkout-result.json). The latter refund was exercised through the authenticated API; merchant browser refund testing remains outstanding.
 

@@ -40,4 +40,4 @@ For the bundled booking example, MERCHANT_CONFIG selects the credential file and
 
 ## Production routing
 
-Serve the landing entry for `/`, the product entry for `/merchant`, `/start`, `/shop`, `/docs`, `/docs/*` and `/checkout/*`, and static assets normally. Keep `/demo` as a compatibility route. Proxy `/v1/*` to the API and `/shop-api/*` to the example merchant only if that example is enabled. Use HTTPS and managed secrets. Vite is not the production application server.
+Run the Next.js server with `pnpm build:web` and `pnpm preview:web`. Configure its server-only `CHECKOUT_API_ORIGIN` and `CHECKOUT_MERCHANT_ORIGIN` to reach the Fastify API and example booking service. Built-in rewrites keep browser requests same-origin. Set APP_ORIGIN and CHECKOUT_BASE_URL on the API to match the public HTTPS frontend origin. See [frontend deployment](landing.md) for details.
