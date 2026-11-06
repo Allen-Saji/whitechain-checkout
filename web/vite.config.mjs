@@ -2,7 +2,11 @@ import { defineConfig } from 'vite';
 import { fileURLToPath } from 'node:url';
 function productRoutes(server) {
   server.middlewares.use((req, _res, next) => {
-    if (/^\/(demo|merchant|checkout\/[^/?]+)(?:\?.*)?$/.test(req.url ?? ''))
+    if (
+      /^\/(demo|shop|start|docs(?:\/[^/?]+)?|merchant|checkout\/[^/?]+)(?:\?.*)?$/.test(
+        req.url ?? '',
+      )
+    )
       req.url = '/product.html';
     next();
   });
