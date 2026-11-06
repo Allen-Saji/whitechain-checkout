@@ -1,9 +1,9 @@
 const messages = {
   RELAYER_PAUSED:
-    'The demo relayer is paused. No payment or refund was submitted.',
+    'Payments are temporarily paused. No payment or refund was submitted.',
   SIGN_IN_REQUIRED: 'Connect your registered merchant wallet to continue.',
   MERCHANT_NOT_REGISTERED:
-    'This wallet is not registered as a merchant. You can still explore the read-only demo.',
+    'This wallet is not registered. Open Get started to set up your merchant account.',
   INVALID_SIGNATURE: 'The signature could not be verified. Please try again.',
   CHALLENGE_EXPIRED: 'The sign-in request expired. Please connect again.',
   CHECKOUT_EXPIRED:
@@ -23,7 +23,7 @@ const messages = {
     'Payments are paused while the network record is reviewed.',
   REFUND_EXPIRED:
     'The refund authorization expired. Create a new refund request.',
-  DEMO_UNAVAILABLE: 'The demo merchant is not configured on this server.',
+  DEMO_UNAVAILABLE: 'The workspace preview is not available on this server.',
 };
 export async function api(path, body) {
   let response;

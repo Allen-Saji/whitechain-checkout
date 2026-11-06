@@ -1,3 +1,4 @@
+import { renderMerchantAccess } from './merchant-access.js';
 import { parseUnits } from 'viem';
 import {
   api,
@@ -48,9 +49,12 @@ export async function renderMerchant(view) {
         merchant: session.merchant,
         readOnly: false,
       };
-    } else data = await api('/v1/demo');
+    } else if (new URLSearchParams(location.search).get('view') === 'example')
+      data = await api('/v1/demo');
+    else data = null;
   }
   await load();
+  if (!data) return renderMerchantAccess(view, () => renderMerchant(view));
   view.innerHTML = `<div class="workspace-title"><div><p class="app-kicker">MERCHANT WORKSPACE</p><h1>Orders, <em>accounted for.</em></h1><p class="app-lede">See what's paid, what's delivered, and what needs your attention.</p></div><button id="merchant-auth" class="button button-outline"></button></div><div id="workspace-mode" class="workspace-mode"></div><div id="workspace-stats" class="workspace-stats"></div><div class="orders-heading"><h2>Recent orders</h2><span>Updates every 10 seconds</span></div><div id="orders-table" class="orders-table"></div><section id="order-detail" class="workspace-detail" hidden></section>`;
   const authButton = document.querySelector('#merchant-auth');
   authButton.onclick = async () => {
@@ -74,11 +78,15 @@ export async function renderMerchant(view) {
     }
   };
   function draw() {
+    if (!data) {
+      location.replace('/merchant');
+      return;
+    }
     authButton.disabled = false;
     authButton.textContent = session ? 'Sign out' : 'Connect merchant wallet';
     document.querySelector('#workspace-mode').innerHTML = data.readOnly
-      ? `<span class="status-pill">Read-only demo</span><p>These are recorded test orders. Connect the registered merchant wallet to issue refunds or retry delivery.</p>`
-      : `<span class="status-pill success">Signed in</span><p>Merchant wallet ${shortAddress(data.merchant.payout)}. Signing in never grants permission to spend USDT.</p>`;
+      ? `<span class="status-pill">Workspace preview</span><p>Example account activity. Sign in to see your own orders and manage payments.</p>`
+      : `<span class="status-pill success">Signed in</span><p>Merchant wallet ${shortAddress(data.merchant.payout)}. Your payments and fulfillment in one place.</p>`;
     const confirmed = data.orders.filter((order) =>
       ['paid', 'partially_refunded', 'refunded'].includes(order.state),
     );
@@ -94,7 +102,7 @@ export async function renderMerchant(view) {
       `<div><span>Received in recent orders</span><strong>${money(total)} <small>USDT</small></strong></div><div><span>Refunded</span><strong>${money(refunded)} <small>USDT</small></strong></div><div><span>Awaiting fulfillment</span><strong>${confirmed.filter((order) => order.fulfillment !== 'fulfilled').length}</strong></div>`;
     document.querySelector('#orders-table').innerHTML = data.orders.length
       ? `<table><thead><tr><th>Order</th><th>Amount</th><th>Payment</th><th>Fulfillment</th><th><span class="sr-only">Details</span></th></tr></thead><tbody>${data.orders.map((order) => `<tr><td><strong>${escapeHtml(orderLabel(order.external_id))}</strong><small>${new Date(order.created_at).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}</small></td><td>${money(order.amount)} USDT</td><td><span class="status-pill ${['paid', 'partially_refunded', 'refunded'].includes(order.state) ? 'success' : ''}">${label(order.state)}</span></td><td>${label(order.fulfillment)}</td><td><button class="table-action" data-order="${escapeHtml(order.id)}">Details &#8599;</button></td></tr>`).join('')}</tbody></table>`
-      : '<div class="empty-state"><h3>Your first order starts here.</h3><p>Create a checkout from your merchant server, or try the demo shop.</p><a class="text-link" href="/demo">Open demo shop &#8599;</a></div>';
+      : '<div class="empty-state"><h3>Your first order starts here.</h3><p>Connect your server and create a checkout to receive your first order.</p><a class="text-link" href="/start">Connect your integration &#8599;</a></div>';
     document.querySelectorAll('[data-order]').forEach(
       (button) =>
         (button.onclick = () => {

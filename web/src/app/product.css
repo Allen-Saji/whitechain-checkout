@@ -707,8 +707,19 @@
     gap: 15px;
     font-size: 11px;
   }
-  .app-header nav > a:last-child {
-    display: none;
+  .app-header {
+    height: auto;
+    min-height: 110px;
+    padding-top: 20px;
+    padding-bottom: 14px;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .app-header nav {
+    width: 100%;
+    justify-content: space-between;
+    font-size: 14px;
   }
   .app-main {
     padding-top: 20px;
@@ -885,5 +896,101 @@
   }
   .product-app h1 {
     font-size: 40px;
+  }
+}
+
+.access-grid,
+.setup-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: clamp(32px, 7vw, 110px);
+  align-items: start;
+}
+.access-grid {
+  padding: 35px 0;
+}
+.access-card > p,
+.setup-steps p {
+  color: var(--muted);
+  line-height: 1.7;
+}
+.access-card h2 {
+  margin-bottom: 20px;
+}
+.access-card .button {
+  margin-top: 24px;
+}
+.access-features {
+  list-style: none;
+  padding: 0;
+  margin: 42px 0 0;
+}
+.access-features li {
+  border-top: 1px solid var(--line);
+  padding: 20px 0;
+}
+.access-features span {
+  color: var(--orange);
+  margin-right: 18px;
+  font-size: 12px;
+}
+.access-divider {
+  height: 1px;
+  background: var(--line);
+  margin: 30px 0;
+}
+.access-preview {
+  display: block;
+  margin-top: 24px;
+  text-align: center;
+}
+.setup-heading {
+  margin-bottom: 56px;
+}
+.setup-steps article {
+  border-top: 1px solid var(--line);
+  padding: 28px 0 38px;
+}
+.setup-steps h2 {
+  margin: 14px 0;
+}
+.setup-steps .text-link {
+  display: inline-block;
+  margin-top: 20px;
+}
+.setup-checklist {
+  padding-left: 20px;
+  line-height: 1.7;
+  margin: 24px 0;
+}
+.setup-checklist li {
+  margin: 12px 0;
+}
+.setup-code {
+  background: var(--paper, #f4eee7);
+  padding: 22px;
+  overflow-x: auto;
+  font-size: 13px;
+  line-height: 1.7;
+  margin-top: 24px;
+}
+@media (max-width: 760px) {
+  .access-grid,
+  .setup-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 30px;
+  }
+  .access-grid {
+    padding-top: 0;
+  }
+  .access-card > p,
+  .setup-steps p,
+  .setup-checklist {
+    font-size: 16px;
+  }
+  .app-header nav {
+    gap: 14px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
   }
 }

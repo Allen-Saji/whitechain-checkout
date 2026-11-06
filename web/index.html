@@ -35,8 +35,8 @@
         <a href="#product">Product</a><a href="#developers">Developers</a
         ><a href="#questions">Questions</a>
       </nav>
-      <a class="button button-outline nav-action" href="/demo"
-        >Try a test purchase <span aria-hidden="true">&#8599;</span></a
+      <a class="button button-outline nav-action" href="/merchant"
+        >Open workspace <span aria-hidden="true">&#8599;</span></a
       >
       <button
         class="menu-toggle"
@@ -54,7 +54,7 @@
       hidden
     >
       <a href="#product">Product</a><a href="#developers">Developers</a
-      ><a href="#questions">Questions</a><a href="/demo">Try a test purchase</a>
+      ><a href="#questions">Questions</a><a href="/merchant">Open workspace</a>
     </nav>
     <main id="main">
       <section class="hero" id="top" aria-labelledby="hero-heading">
@@ -72,8 +72,8 @@
             track paid orders, and retry notifications after an outage.
           </p>
           <div class="hero-actions">
-            <a class="button button-primary" href="/demo"
-              >Try a test purchase <span aria-hidden="true">&#8599;</span></a
+            <a class="button button-primary" href="/merchant"
+              >Open workspace <span aria-hidden="true">&#8599;</span></a
             ><a class="text-link" href="#product"
               >How it works <span aria-hidden="true">&#8595;</span></a
             >
@@ -107,14 +107,14 @@
               <span class="check" aria-hidden="true">&#10003;</span> Order
               fulfilled
             </p>
-            <p class="receipt-caption">Illustrative receipt</p>
+            <p class="receipt-caption">Payment receipt</p>
           </div>
           <span class="scene-label scene-label-left">Payment</span
           ><span class="scene-label scene-label-right">Order</span>
         </div>
         <div class="hero-bottom wrap">
           <span>PAYMENT RECEIPTS. ORDER RECOVERY. REFUNDS.</span
-          ><span><i class="status-dot"></i> Whitechain Sepolia testnet</span>
+          ><span><i class="status-dot"></i> Direct wallet settlement</span>
         </div>
       </section>
       <section class="intro section wrap" id="product">
@@ -257,7 +257,7 @@
                 ><span class="live-indicator" aria-hidden="true"></span>
               </div>
             </div>
-            <p class="demo-caption">Illustrative walkthrough. No funds move.</p>
+            <p class="demo-caption">Payment lifecycle</p>
             <button id="advance-demo" class="text-link">
               Simulate an outage <span aria-hidden="true">&#8594;</span>
             </button>
@@ -307,8 +307,8 @@
       </section>
       <section class="evidence wrap reveal">
         <div>
-          <p class="eyebrow">SETTLED ON WHITECHAIN SEPOLIA</p>
-          <h3>Recorded on testnet.</h3>
+          <p class="eyebrow">VERIFIABLE SETTLEMENT</p>
+          <h3>Every payment has a record.</h3>
           <p>
             A 2 USDT payment. A 0.5 USDT refund.<br />Zero WBT held by the buyer
             and merchant.
@@ -338,7 +338,7 @@
           </p>
           <a
             class="text-link"
-            href="https://github.com/Allen-Saji/whitechain-checkout#integration-contract"
+            href="/docs/quickstart"
             target="_blank"
             rel="noopener noreferrer"
             >Read the integration guide
@@ -411,14 +411,12 @@
           </details>
           <details>
             <summary>
-              Can I use it with real funds today?<span aria-hidden="true"
-                >+</span
-              >
+              How do I connect my business?<span aria-hidden="true">+</span>
             </summary>
             <p>
-              This release is for Whitechain Sepolia testnet. It is not audited
-              for production funds. Explore the open-source integration and the
-              recorded testnet transactions.
+              Register your payout wallet and notification endpoint, create a
+              checkout from your server, and connect your existing fulfillment
+              logic. <a href="/start">Read the setup guide.</a>
             </p>
           </details>
         </div>
@@ -433,7 +431,7 @@
           rel="noopener noreferrer"
           >Build with checkout <span aria-hidden="true">&#8599;</span></a
         >
-        <p>Open source. Direct settlement. Whitechain Sepolia.</p>
+        <p>Direct settlement. Recoverable orders. Verifiable refunds.</p>
       </section>
     </main>
     <footer class="site-footer wrap">
@@ -445,7 +443,7 @@
         target="_blank"
         rel="noopener noreferrer"
         >GitHub <span aria-hidden="true">&#8599;</span></a
-      ><span class="footer-network">Testnet only</span>
+      ><span class="footer-network">Built on Whitechain</span>
     </footer>
     <button
       class="pdf-btn no-print"
