@@ -14,7 +14,7 @@ Include the affected revision, reproduction steps, impact and a minimal local or
 - The receipt UUID grants access to its public payment details. Do not include private customer information in external order IDs.
 - The merchant controls paid funds. Refunds require merchant consent and sufficient balance.
 - The worker halts on a changed chain checkpoint. Reconciliation and stuck-transaction handling are manual.
-- Webhook endpoints are operator-provisioned. Public self-service registration requires stronger endpoint validation and network egress controls before enabling it.
+- Webhook delivery validates public IP ranges, pins the validated DNS address for each connection, rejects redirects and uses a five-second deadline. Registration requires an explicit deployment flag. Infrastructure egress controls remain recommended defense in depth.
 - SQLite, its WAL and backups require restricted access. Production deployment needs TLS, managed secrets, monitoring and explicit proxy configuration.
 
 See [architecture](docs/architecture.md) and [operations](docs/operations.md) for detailed trust and recovery boundaries.

@@ -41,7 +41,7 @@ The relay is permissioned. The service is trusted to create merchant-priced orde
 
 Keep route modules focused on validation and application operations. Share authorization encoding through `protocol.mjs`; do not duplicate the nonce rules in clients. Add a regression test for each failure mode before changing worker persistence or payment/refund accounting.
 
-Database startup reads `PRAGMA user_version` inside a transaction. Version 1 preserves existing prototype rows and adds queue indexes and refund-job uniqueness. Version 2 adds wallet sign-in challenges and hashed merchant sessions. Add a new numbered migration and increment the supported version for future schema changes. Never silently rewrite existing migration semantics or open a newer schema with older code.
+Database startup reads `PRAGMA user_version` inside a transaction. Version 1 preserves existing prototype rows and adds queue indexes and refund-job uniqueness. Version 2 adds wallet sign-in challenges and hashed merchant sessions. Version 3 adds merchant profiles and separate registration challenges. Add a new numbered migration and increment the supported version for future schema changes. Never silently rewrite existing migration semantics or open a newer schema with older code.
 
 The current SQLite deployment is single-host. A multi-host deployment needs a shared transactional store, explicit locking/leases, distributed rate limits, and migration coordination. Do not share one relay key across independent databases.
 
@@ -49,10 +49,18 @@ The current SQLite deployment is single-host. A multi-host deployment needs a sh
 
 Merchant sign-in verifies an EOA signature over a domain-bound message with a single-use, five-minute challenge. A successful signature creates a seven-day HttpOnly, SameSite=Strict session cookie (Secure on HTTPS). Only the token hash is stored. Logout revokes the session. Merchant mutations authenticated with cookies require an exact `APP_ORIGIN` match. Server integrations retain bearer API keys; these keys never enter the browser.
 
-The payout address must already belong to an operator-provisioned merchant. Signing in does not create a merchant. The public `/v1/demo` endpoint is disabled unless `DEMO_MERCHANT_ID` explicitly selects a demo merchant whose order and delivery data may be public. Keep customer information out of that fixture.
+The payout address must already belong to a registered merchant. Signing in does not create a merchant; /register uses a separate signed challenge to create one when registration is enabled. The public `/v1/demo` endpoint is disabled unless `DEMO_MERCHANT_ID` explicitly selects a demo merchant whose order and delivery data may be public. Keep customer information out of that fixture.
 
 `DEMO_WORKER=0` prevents payment/refund submission and worker cycles. This is an application pause, separate from the onchain payment pause, and also suspends indexing and notification retries.
 
 ## Frontend boundary
 
 Next.js serves public pages and documentation with the App Router. TypeScript client components handle wallet access, checkout state and merchant operations. The Next server proxies existing API paths to Fastify; it does not duplicate payment accounting or hold merchant keys in browser state. API responses are typed in web/lib/types.ts, and wallet authorizations are checked against the expected chain, token, router, account and amount before signing.
+
+## Merchant onboarding and outbound delivery
+
+Registration consumes a domain-bound, single-use wallet challenge inside the same transaction as account creation. A second registration for the same payout address is rejected. Existing operator-created merchants remain compatible. New accounts have a profile that requires a successful connection check before checkout creation.
+
+Settings and credential rotation require a wallet session, not an API key. Rotation returns the new credential once. Webhook setting and secret changes invalidate connection verification; a settings version prevents a stale in-flight check from verifying newer settings. The connection check confirms HTTP acceptance, not the correctness of the merchant's fulfillment implementation.
+
+Outbound delivery checks every DNS answer and rejects non-public address ranges. It pins a validated address for the socket while preserving TLS hostname validation, rejects redirects, and enforces a five-second deadline. Loopback HTTP is only permitted for local forks or an exact operator-configured loopback origin used by the local example. Global and per-merchant execution-gas caps prevent splitting work across newly registered merchants from bypassing the deployment budget.

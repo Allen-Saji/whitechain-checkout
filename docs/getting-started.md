@@ -16,7 +16,9 @@ The landing and documentation run at `http://127.0.0.1:4210` without backend ser
 
 ## Register a merchant
 
-Registration is currently operator-managed. Choose a payout address controlled by the merchant and a reviewed HTTPS webhook endpoint. Run from the configured service checkout, with DB_PATH pointing to the same database as the API:
+Open `/register`, enter a business name and sign with your payout wallet. Save the API key and webhook secret shown once. Then open `/merchant/settings`, save your public HTTPS endpoint, and send a connection check. Handle `integration.check` by verifying its signature and returning 2xx without creating an order. Registration must be enabled by the operator with `MERCHANT_REGISTRATION_ENABLED=1`.
+
+For operator-managed provisioning, choose a payout address and reviewed HTTPS endpoint, then run from the configured service checkout with DB_PATH pointing to the API database:
 
 ```sh
 DB_PATH=.local/service.sqlite node scripts/create-merchant.mjs \

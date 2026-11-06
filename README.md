@@ -30,14 +30,16 @@ pnpm dev:web
 
 Open `http://127.0.0.1:4210`. The landing page and documentation work without the API. Checkout and the workspace require the API, worker and configured merchant service; follow the [setup guide](docs/getting-started.md). API credentials and relay keys stay server-side.
 
-| Route           | Purpose                            |
-| --------------- | ---------------------------------- |
-| `/`             | Product overview                   |
-| `/merchant`     | Merchant sign-in and workspace     |
-| `/start`        | Integration setup overview         |
-| `/docs`         | Developer guides and API reference |
-| `/shop`         | Example merchant checkout          |
-| `/checkout/:id` | Buyer authorization and receipt    |
+| Route                | Purpose                                 |
+| -------------------- | --------------------------------------- |
+| `/`                  | Product overview                        |
+| `/register`          | Wallet-signed merchant account creation |
+| `/merchant/settings` | Profile, credentials and webhook checks |
+| `/merchant`          | Merchant sign-in and workspace          |
+| `/start`             | Integration setup overview              |
+| `/docs`              | Developer guides and API reference      |
+| `/shop`              | Example merchant checkout               |
+| `/checkout/:id`      | Buyer authorization and receipt         |
 
 ## Integration
 
@@ -84,6 +86,6 @@ The recorded deployment is Whitechain Sepolia, chain 1874, using USDT at `0xcedf
 
 This deployment uses test assets. Public application hosting, mainnet deployment and independent security review are not complete. Explorer source verification is pending. The current system uses single-host SQLite; automatic reorg rollback and transaction fee replacement are not implemented.
 
-Payment goes directly to the merchant. Refunds require the merchant's authorization and available funds; Checkout does not provide escrow or guarantee refunds. Browser authentication supports EOA wallets. Merchant registration is operator-managed.
+Payment goes directly to the merchant. Refunds require the merchant's authorization and available funds; Checkout does not provide escrow or guarantee refunds. Browser authentication supports EOA wallets. Wallet-signed registration is available when enabled by the operator. New accounts must configure and check their webhook before creating checkouts.
 
 Read [architecture](docs/architecture.md), [operations](docs/operations.md) and [security policy](SECURITY.md) before running the service. Contributions are covered in [CONTRIBUTING.md](CONTRIBUTING.md). A project-wide software license has not yet been selected; public source availability does not grant an open-source license. Bundled fonts retain their own license files.
