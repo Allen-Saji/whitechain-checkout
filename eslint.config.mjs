@@ -8,7 +8,6 @@ export default [
       'artifacts/**',
       '.local/**',
       'web/dist/**',
-      'web/legacy/**',
       'web/.next/**',
       'web/next-env.d.ts',
     ],
@@ -18,20 +17,6 @@ export default [
     ...config,
     files: ['web/**/*.ts', 'web/**/*.tsx'],
   })),
-  {
-    files: ['web/src/**/*.js'],
-    languageOptions: {
-      ecmaVersion: 2024,
-      sourceType: 'module',
-      globals: globals.browser,
-    },
-    rules: {
-      'no-unused-vars': 'error',
-      eqeqeq: 'error',
-      'no-var': 'error',
-      'prefer-const': 'error',
-    },
-  },
   {
     files: ['**/*.mjs'],
     languageOptions: {

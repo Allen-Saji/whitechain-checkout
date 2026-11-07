@@ -31,7 +31,6 @@ Development and production preview bind to `http://127.0.0.1:4210`. `pnpm previe
 - `web/lib/`: API types/client, wallet adapter and documentation content.
 - `web/styles/`: shared design styles, product styles and docs styles.
 - `web/public/`: fonts, font licenses, icons and generated decorative artwork.
-- `web/legacy/`: preserved pre-migration Vite source. Not served or imported by Next.js; do not add features there.
 
 The wallet adapter initializes provider discovery in the browser when needed. UI polling stops on unmount and pauses when the page is hidden. Merchant API keys never enter the frontend.
 

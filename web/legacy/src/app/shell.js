@@ -1,5 +1,0 @@
-export function mountShell(active) {
-  document.body.className = 'product-app';
-  document.body.innerHTML = `<a class="skip-link" href="#app-main">Skip to content</a><header class="app-header wrap"><a class="wordmark" href="/"><img src="/mark.svg" width="30" height="30" alt="" />checkout.</a><nav aria-label="Product navigation"><a href="/shop" ${active === 'shop' ? 'aria-current="page"' : ''}>Shop</a><a href="/merchant" ${active === 'merchant' ? 'aria-current="page"' : ''}>Merchant</a><a href="/start" ${active === 'start' ? 'aria-current="page"' : ''}>Get started</a><a href="/docs" ${active === 'docs' ? 'aria-current="page"' : ''}>Docs</a></nav></header><main id="app-main" class="app-main wrap"><div id="app-message" class="app-message" role="alert" hidden></div><div id="app-view" aria-live="off"><p class="loading-label">Loading the workspace...</p></div></main><footer class="app-footer wrap"><span>USDT payments. Orders accounted for.</span><a href="/">About checkout &#8599;</a></footer>`;
-  return document.querySelector('#app-view');
-}
