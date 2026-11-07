@@ -1,4 +1,7 @@
-import { DEFAULT_REGISTRATION_DAILY_GAS_BUDGET } from './gas-policy.mjs';
+import {
+  DEFAULT_REGISTRATION_DAILY_GAS_BUDGET,
+  isGasBudget,
+} from './gas-policy.mjs';
 import 'dotenv/config';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -111,9 +114,10 @@ export async function loadConfig() {
     DEFAULT_REGISTRATION_DAILY_GAS_BUDGET;
   const globalDailyGasBudget =
     process.env.GLOBAL_DAILY_GAS_BUDGET ?? '50000000000000000';
+  const maxGasPerJob = process.env.MAX_GAS_PER_JOB ?? '10000000000000000';
   if (
-    ![registrationDailyGasBudget, globalDailyGasBudget].every((value) =>
-      /^[0-9]+$/.test(value),
+    ![registrationDailyGasBudget, globalDailyGasBudget, maxGasPerJob].every(
+      isGasBudget,
     )
   )
     throw Error('INVALID_GAS_BUDGET');
@@ -155,6 +159,6 @@ export async function loadConfig() {
     port: Number(process.env.PORT ?? 4200),
     host: process.env.HOST ?? '127.0.0.1',
     checkoutBaseUrl: process.env.CHECKOUT_BASE_URL,
-    maxGasPerJob: 10000000000000000n,
+    maxGasPerJob,
   };
 }

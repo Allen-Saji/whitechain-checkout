@@ -153,3 +153,41 @@ test('a shared gas cap prevents additional merchants bypassing the deployment bu
     db.close();
   }
 });
+
+test('unlimited gas sponsorship retains accounting and respects any remaining finite cap', async () => {
+  const { isGasBudget, exceedsGasBudget } =
+    await import('../src/gas-policy.mjs');
+  assert(isGasBudget('unlimited'));
+  assert(!isGasBudget('invalid'));
+  assert(!exceedsGasBudget(10n ** 30n, 'unlimited'));
+  const db = openDatabase(
+    join(mkdtempSync(join(tmpdir(), 'checkout-unlimited-')), 'test.sqlite'),
+  );
+  try {
+    const merchant = { id: 'unlimited', daily_gas_budget: 'unlimited' };
+    reserveGas(db, { id: 'a' }, merchant, 1000n, Date.now(), 'unlimited');
+    reserveGas(db, { id: 'b' }, merchant, 2000n, Date.now(), 'unlimited');
+    assert.equal(
+      db.prepare('SELECT count(*) AS n FROM gas_reservations').get().n,
+      2,
+    );
+    assert.throws(
+      () => reserveGas(db, { id: 'c' }, merchant, 1n, Date.now(), '3000'),
+      /GLOBAL_GAS_BUDGET/,
+    );
+    assert.throws(
+      () =>
+        reserveGas(
+          db,
+          { id: 'd' },
+          { id: 'limited', daily_gas_budget: '10' },
+          11n,
+          Date.now(),
+          'unlimited',
+        ),
+      /MERCHANT_GAS_BUDGET/,
+    );
+  } finally {
+    db.close();
+  }
+});

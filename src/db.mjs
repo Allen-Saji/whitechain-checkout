@@ -1,3 +1,4 @@
+import { exceedsGasBudget } from './gas-policy.mjs';
 import { DatabaseSync } from 'node:sqlite';
 import { mkdirSync, chmodSync, readFileSync } from 'node:fs';
 import { dirname } from 'node:path';
@@ -101,11 +102,11 @@ export function reserveGas(
         .all(day)
         .reduce((sum, row) => sum + BigInt(row.amount), 0n);
       const replace = prior?.day === day ? BigInt(prior.amount) : 0n;
-      if (globalUsed - replace + cost > BigInt(globalBudget))
+      if (exceedsGasBudget(globalUsed - replace + cost, globalBudget))
         throw Error('GLOBAL_GAS_BUDGET');
     }
     const priorToday = prior?.day === day ? BigInt(prior.amount) : 0n;
-    if (used - priorToday + cost > BigInt(merchant.daily_gas_budget))
+    if (exceedsGasBudget(used - priorToday + cost, merchant.daily_gas_budget))
       throw Error('MERCHANT_GAS_BUDGET');
     db.prepare(
       'INSERT INTO gas_reservations VALUES(?,?,?,?) ON CONFLICT(job_id) DO UPDATE SET day=excluded.day,amount=excluded.amount',

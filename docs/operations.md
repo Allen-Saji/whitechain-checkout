@@ -84,3 +84,7 @@ DB_PATH=/data/checkout.sqlite node scripts/set-merchant-budget.mjs MERCHANT_ID 1
 ```
 
 The command requires an explicit database path, refuses unknown merchants and allowances above the configured global cap, and prints only the merchant ID and budget values. It does not submit transactions or retry jobs. Back up the database before deploying a schema migration. Schema version 4 adds immutable order details without rewriting existing receipts.
+
+### Unlimited gas sponsorship
+
+`GLOBAL_DAILY_GAS_BUDGET`, `REGISTRATION_DAILY_GAS_BUDGET`, and `MAX_GAS_PER_JOB` accept `unlimited` as an explicit alternative to a wei amount. Existing merchants retain their stored budget until updated with `set-merchant-budget.mjs MERCHANT_ID unlimited --apply`. Gas reservations remain recorded for accounting even when caps are disabled. Disabling a merchant cap does not disable a finite global cap. Unlimited sponsorship still requires sufficient WBT in the relay wallet.

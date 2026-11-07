@@ -1,3 +1,4 @@
+import { exceedsGasBudget } from '../gas-policy.mjs';
 import { relayScopeAllows } from '../relay-scope.mjs';
 import { createWalletClient, http, encodeFunctionData, keccak256 } from 'viem';
 import { transaction, reserveGas } from '../db.mjs';
@@ -130,7 +131,7 @@ export function createRelay(config, db, owns) {
     const gas = ((await client.estimateContractGas(call)) * 125n) / 100n;
     const fees = await client.estimateFeesPerGas();
     const cap = gas * (fees.maxFeePerGas ?? fees.gasPrice);
-    if (cap > config.maxGasPerJob) {
+    if (exceedsGasBudget(cap, config.maxGasPerJob)) {
       fail(job, 'TRANSACTION_GAS_CAP');
       return;
     }
