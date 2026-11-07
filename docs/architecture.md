@@ -64,3 +64,13 @@ Registration consumes a domain-bound, single-use wallet challenge inside the sam
 Settings and credential rotation require a wallet session, not an API key. Rotation returns the new credential once. Webhook setting and secret changes invalidate connection verification; a settings version prevents a stale in-flight check from verifying newer settings. The connection check confirms HTTP acceptance, not the correctness of the merchant's fulfillment implementation.
 
 Outbound delivery checks every DNS answer and rejects non-public address ranges. It pins a validated address for the socket while preserving TLS hostname validation, rejects redirects, and enforces a five-second deadline. Loopback HTTP is only permitted for local forks or an exact operator-configured loopback origin used by the local example. Global and per-merchant execution-gas caps prevent splitting work across newly registered merchants from bypassing the deployment budget.
+
+## Concurrent payments and delivery
+
+The API accepts concurrent requests from different buyers and merchants. Checkout creation is idempotent per merchant and external order ID. Payment submission verifies each signature, then atomically creates at most one payment job per checkout. Repeated submissions return the existing job. Queued orders survive process restarts.
+
+One leased worker writes transactions for the relay wallet. Transactions are serialized until mining so concurrent customers cannot race for the same account nonce. The signed transaction is persisted before broadcast; an uncertain response rebroadcasts the same bytes. This supports concurrent users with queued settlement, not unlimited parallel on-chain throughput. A stuck transaction can delay later payments; fee replacement remains a separate improvement.
+
+Webhook delivery processes at most ten due events concurrently. A slow merchant endpoint does not block other deliveries in that batch. Relay processing and webhook delivery run independently after the chain-index check; a relay error does not suppress already-confirmed event deliveries. Overlapping ticks from the same worker are rejected, and the database lease excludes other worker instances sharing the database.
+
+The deployment remains one backend replica with a persistent SQLite volume. Horizontal scaling requires a shared transactional database, distributed coordination and an explicit nonce-allocation strategy. Adding replicas with independent SQLite databases is not supported.
