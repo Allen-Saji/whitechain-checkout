@@ -20,7 +20,7 @@ const serif = localFont({
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: 'Checkout - USDT payments for your business.',
+    default: 'Checkout - Stablecoin payments for your business.',
     template: '%s | Checkout',
   },
   description: siteDescription,
@@ -30,12 +30,12 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     siteName: 'Checkout',
-    title: 'Checkout - USDT payments for your business.',
+    title: 'Checkout - Stablecoin payments for your business.',
     description: siteDescription,
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Checkout - USDT payments for your business.',
+    title: 'Checkout - Stablecoin payments for your business.',
     description: siteDescription,
   },
   robots: { index: true, follow: true },

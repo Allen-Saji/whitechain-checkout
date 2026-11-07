@@ -71,12 +71,12 @@ export default function Landing() {
               MANAGEMENT
             </p>
             <h1 id="hero-heading">
-              Get paid in USDT.
+              Stablecoin payments.
               <br />
               Stay <em>in control.</em>
             </h1>
             <p className="hero-lede">
-              Add hosted USDT checkout to your app. Collect payments directly to
+              Add stablecoin checkout to your app. Collect payments directly to
               your wallet, and manage orders, receipts and refunds from one
               workspace.
             </p>
@@ -195,7 +195,8 @@ export default function Landing() {
                   <span>
                     <strong>Give customers a simple checkout.</strong>
                     <small>
-                      They pay in USDT. Checkout takes care of the network fee.
+                      They authorize the payment. Checkout covers the network
+                      fee.
                     </small>
                   </span>
                   <span className="step-arrow" aria-hidden="true">
@@ -314,14 +315,14 @@ export default function Landing() {
               to the <em>final receipt.</em>
             </h2>
             <p className="section-lede">
-              The tools to collect, track and manage USDT payments.
+              The tools to collect, track and manage stablecoin payments.
             </p>
           </div>
           <div className="detail-list reveal">
             <article>
               <span>01</span>
               <div>
-                <h3>Accept USDT without a customer gas fee.</h3>
+                <h3>Accept payments without a customer gas fee.</h3>
                 <p>
                   Share a hosted checkout from your app. Customers connect a
                   wallet with USDT on Whitechain Sepolia and authorize the
@@ -440,7 +441,7 @@ export default function Landing() {
               </summary>
               <p>
                 You can connect Checkout to your billing system to collect a
-                USDT payment and keep its receipt with the order. Invoice
+                stablecoin payment and keep its receipt with the order. Invoice
                 creation, recurring subscriptions and tax calculations stay in
                 your billing system.
               </p>
@@ -520,7 +521,7 @@ export default function Landing() {
           <img src="/mark.svg" alt="" width="28" height="28" />
           checkout.
         </a>
-        <span>USDT checkout and payment management.</span>
+        <span>Stablecoin checkout and payment management.</span>
         <a
           href="https://github.com/Allen-Saji/whitechain-checkout"
           target="_blank"

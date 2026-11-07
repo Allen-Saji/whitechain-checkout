@@ -1,7 +1,7 @@
 import { ImageResponse } from 'next/og';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
-export const alt = 'Checkout - Get paid in USDT. Stay in control.';
+export const alt = 'Checkout - Stablecoin payments. Stay in control.';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 export const dynamic = 'force-static';
@@ -38,13 +38,13 @@ export default async function Image() {
         style={{
           display: 'flex',
           flexDirection: 'column',
-          fontSize: 82,
+          fontSize: 76,
           lineHeight: 1.08,
           marginTop: 76,
           letterSpacing: -4,
         }}
       >
-        <span>Get paid in USDT.</span>
+        <span>Stablecoin payments.</span>
         <span style={{ color: '#d83c1b' }}>Stay in control.</span>
       </div>
       <div
