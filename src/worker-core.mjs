@@ -24,7 +24,7 @@ export function createWorker(
   const relay = createRelay(config, db, owns),
     index = createIndexer(config, db, owns),
     deliver = createOutbox(db, owns, fetcher);
-  async function tick() {
+  async function cycle() {
     if (config.relayEnabled === false) return false;
     const acquired = transaction(db, () => {
       db.prepare(
@@ -47,14 +47,27 @@ export function createWorker(
         "UPDATE refunds SET status='expired' WHERE status='created' AND deadline<=?",
       ).run(Math.floor(Date.now() / 1000));
       await index();
-      await relay();
-      await deliver();
+      // Delivery of previously confirmed events must not depend on a new
+      // transaction simulation or broadcast succeeding.
+      const results = await Promise.allSettled([relay(), deliver()]);
+      const failure = results.find((result) => result.status === 'rejected');
+      if (failure) throw failure.reason;
       return true;
     } finally {
       clearInterval(heartbeat);
       db.prepare("DELETE FROM leases WHERE name='worker' AND owner=?").run(
         owner,
       );
+    }
+  }
+  let running = false;
+  async function tick() {
+    if (running) return false;
+    running = true;
+    try {
+      return await cycle();
+    } finally {
+      running = false;
     }
   }
   return { tick };
